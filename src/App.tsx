@@ -1,50 +1,60 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/tauri";
+import DrillDataTable from "./components/DrillDataTable";
+import ControlPanel from "./components/ControlPanel";
 import "./App.css";
 
-function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
+interface DrillData {
+  id: number;
+  depth: number;
+  angle: number;
+  geoPosition: number;
+  toolDirection: number;
+  horizontalOffset: number;
+  verticalOffset: number;
+}
 
-  async function greet() {
-    // Learn more about Tauri commands at https://v1.tauri.app/v1/guides/features/command
-    setGreetMsg(await invoke("greet", { name }));
-  }
+function App() {
+  const [drillData, setDrillData] = useState<DrillData[]>([
+    {
+      id: 1,
+      depth: 0.00,
+      angle: 0.00,
+      geoPosition: 0.00,
+      toolDirection: 0.00,
+      horizontalOffset: 0.00,
+      verticalOffset: 0.00
+    }
+  ]);
+  const [holeAngle, setHoleAngle] = useState(0);
+  const [geoPosition, setGeoPosition] = useState(0);
+  const [toolDirection, setToolDirection] = useState(0);
+
+  const handleCalculate = () => {
+    // TODO: 实现计算逻辑
+    console.log("计算中...", { holeAngle, geoPosition, toolDirection });
+  };
 
   return (
-    <main className="container">
-      <h1>Welcome to Tauri + React</h1>
+    <div className="app-container">
+      <header>
+        <h1>钻孔机遍历数据处理系统</h1>
+      </header>
+      
+      <main>
+        <section className="control-section">
+          <ControlPanel
+            onCalculate={handleCalculate}
+            onHoleAngleChange={setHoleAngle}
+            onGeoPositionChange={setGeoPosition}
+            onToolDirectionChange={setToolDirection}
+          />
+        </section>
 
-      <div className="row">
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
-
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
-        />
-        <button type="submit">Greet</button>
-      </form>
-      <p>{greetMsg}</p>
-    </main>
+        <section className="data-section">
+          <DrillDataTable data={drillData} />
+        </section>
+      </main>
+    </div>
   );
 }
 

@@ -114,3 +114,54 @@ button {
     background-color: #0f0f0f69;
   }
 }
+
+.app-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+header h1 {
+  color: #1890ff;
+  font-size: 24px;
+}
+
+.control-section {
+  background: #f0f2f5;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.data-section {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.drill-data-table {
+  overflow-x: auto;
+}
+
+.control-panel .ant-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .control-panel .ant-form {
+    flex-direction: column;
+  }
+  
+  .control-panel .ant-form-item {
+    margin-bottom: 16px;
+  }
+}
