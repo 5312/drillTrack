@@ -1,0 +1,134 @@
+"use client"
+
+import { motion } from "framer-motion"
+import { Tabs, TabsList, TabsTrigger } from "./ui/tabs"
+import { Button } from "./ui/button"
+import { Input } from "./ui/input"
+import { Checkbox } from "./ui/checkbox"
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
+import { Grid, BarChart2, CuboidIcon as Cube, RotateCcw, Compass, Loader2 } from "lucide-react"
+import { useDrillingData } from "../context/drilling-data-context"
+
+interface ControlPanelProps {
+  isProcessing: boolean
+  onProcess: () => void
+}
+
+export function ControlPanel({ isProcessing, onProcess }: ControlPanelProps) {
+  const {
+    setIsLoading,
+    firstHoleAsReference,
+    setFirstHoleAsReference,
+    openingAngle,
+    setOpeningAngle,
+    geoOrientation,
+    setGeoOrientation,
+    activeTab,
+    setActiveTab,
+  } = useDrillingData()
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value)
+    setIsLoading(true)
+    setTimeout(() => {
+      setIsLoading(false)
+    }, 800)
+  }
+
+  return (
+    <motion.div
+      initial={{ y: 20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.4, delay: 0.2 }}
+    >
+      <Card className="mb-6 shadow-sm hover:shadow transition-shadow">
+        <CardHeader className="pb-3">
+          <CardTitle>显示控制</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-6">
+            <div className="flex items-center gap-4">
+              <Tabs value={activeTab} onValueChange={handleTabChange}>
+                <TabsList className="bg-slate-100 dark:bg-slate-800">
+                  <TabsTrigger
+                    value="table"
+                    className="gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 transition-all"
+                  >
+                    <Grid className="h-4 w-4" />
+                    表格显示
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="2d"
+                    className="gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 transition-all"
+                  >
+                    <BarChart2 className="h-4 w-4" />
+                    二维图显示
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="3d"
+                    className="gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 transition-all"
+                  >
+                    <Cube className="h-4 w-4" />
+                    三维图显示
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="reference"
+                checked={firstHoleAsReference}
+                onCheckedChange={(checked) => setFirstHoleAsReference(!!checked)}
+                className="data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500 transition-colors"
+              />
+              <label htmlFor="reference" className="text-sm">
+                第一个测点为井孔点
+              </label>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <label htmlFor="opening-angle" className="text-sm whitespace-nowrap">
+                开孔角度
+              </label>
+              <Input
+                id="opening-angle"
+                value={openingAngle}
+                onChange={(e) => setOpeningAngle(e.target.value)}
+                className="w-24 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all"
+              />
+            </div>
+
+            <div className="flex items-center gap-2">
+              <label htmlFor="geo-orientation" className="text-sm whitespace-nowrap">
+                地理方位角
+              </label>
+              <Input
+                id="geo-orientation"
+                value={geoOrientation}
+                onChange={(e) => setGeoOrientation(e.target.value)}
+                className="w-24 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all"
+              />
+            </div>
+
+            <Button variant="outline" className="gap-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+              <Compass className="h-4 w-4" />
+              <span>地磁偏角</span>
+            </Button>
+
+            <Button
+              variant="outline"
+              className="gap-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              onClick={onProcess}
+              disabled={isProcessing}
+            >
+              {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RotateCcw className="h-4 w-4" />}
+              <span>重新计算</span>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  )
+}
+

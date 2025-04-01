@@ -1,61 +1,40 @@
-import { useState } from "react";
-import DrillDataTable from "./components/DrillDataTable";
-import ControlPanel from "./components/ControlPanel";
-import "./App.css";
+"use client"
 
-interface DrillData {
-  id: number;
-  depth: number;
-  angle: number;
-  geoPosition: number;
-  toolDirection: number;
-  horizontalOffset: number;
-  verticalOffset: number;
-}
+import { useState } from "react"
+import { DrillingDataProvider } from "./context/drilling-data-context"
+import { AppHeader } from "./components/app-header"
+import { AppSidebar } from "./components/app-sidebar"
+import { ControlPanel } from "./components/control-panel"
+import { DataDisplay } from "./components/data-display"
+import "./App.css"
 
 function App() {
-  const [drillData, setDrillData] = useState<DrillData[]>([
-    {
-      id: 1,
-      depth: 0.00,
-      angle: 0.00,
-      geoPosition: 0.00,
-      toolDirection: 0.00,
-      horizontalOffset: 0.00,
-      verticalOffset: 0.00
-    }
-  ]);
-  const [holeAngle, setHoleAngle] = useState(0);
-  const [geoPosition, setGeoPosition] = useState(0);
-  const [toolDirection, setToolDirection] = useState(0);
+  const [isProcessing, setIsProcessing] = useState(false)
 
-  const handleCalculate = () => {
-    // TODO: 实现计算逻辑
-    console.log("计算中...", { holeAngle, geoPosition, toolDirection });
-  };
+  const handleProcess = () => {
+    setIsProcessing(true)
+    setTimeout(() => {
+      setIsProcessing(false)
+    }, 2000)
+  }
 
   return (
-    <div className="app-container">
-      <header>
-        <h1>钻孔机遍历数据处理系统</h1>
-      </header>
-      
-      <main>
-        <section className="control-section">
-          <ControlPanel
-            onCalculate={handleCalculate}
-            onHoleAngleChange={setHoleAngle}
-            onGeoPositionChange={setGeoPosition}
-            onToolDirectionChange={setToolDirection}
-          />
-        </section>
+    <DrillingDataProvider>
+      <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-900">
+        <AppHeader />
 
-        <section className="data-section">
-          <DrillDataTable data={drillData} />
-        </section>
-      </main>
-    </div>
-  );
+        <div className="flex flex-1">
+          <AppSidebar isProcessing={isProcessing} onProcess={handleProcess} />
+
+          <main className="flex-1 p-6">
+            <ControlPanel isProcessing={isProcessing} onProcess={handleProcess} />
+            <DataDisplay />
+          </main>
+        </div>
+      </div>
+    </DrillingDataProvider>
+  )
 }
 
-export default App;
+export default App
+
