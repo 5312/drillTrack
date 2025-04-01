@@ -103,33 +103,3 @@ pub fn generate_hardware_id() -> String {
     // 返回前32个字符作为十六进制格式
     format!("{:x}", result)[..32].to_string()
 }
-
-// 创建许可证数据
-pub fn create_license(machine_id: &str, expiration: Option<String>, features: Vec<String>, private_key: &[u8]) -> Result<String, String> {
-    let license = License {
-        machine_id: machine_id.to_string(),
-        expiration,
-        features,
-        signature: String::new(),
-    };
-    
-    // 序列化许可证数据
-    let license_data = serde_json::to_vec(&license)
-        .map_err(|e| format!("Failed to serialize license: {}", e))?;
-    
-    // 使用私钥签名
-    let private_key = signature::Ed25519KeyPair::from_pkcs8(private_key)
-        .map_err(|_| "Invalid private key".to_string())?;
-    
-    let signature_bytes = private_key.sign(license_data.as_ref());
-    
-    // 创建带有签名的完整许可证
-    let mut signed_license = license;
-    signed_license.signature = BASE64.encode(signature_bytes.as_ref());
-    
-    // 序列化完整的许可证并返回
-    let signed_license_data = serde_json::to_string(&signed_license)
-        .map_err(|e| format!("Failed to serialize signed license: {}", e))?;
-    
-    Ok(BASE64.encode(signed_license_data.as_bytes()))
-}

@@ -5,7 +5,7 @@
 
 mod license_utils;
 
-use license_utils::{generate_hardware_id, verify_license_file, create_license};
+use license_utils::generate_hardware_id;
 use std::fs;
 use std::path::PathBuf;
 use tauri::api::path;
