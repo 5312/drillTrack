@@ -11,7 +11,7 @@ edition = "2021"
 tauri-build = { version = "1", features = [] }
 
 [dependencies]
-tauri = { version = "1", features = ["shell-open"] }
+tauri = { version = "1", features = [ "dialog-all", "fs-read-file", "fs-read-dir", "fs-exists", "fs-write-file", "shell-open"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 ring = "0.16.20"
@@ -23,3 +23,11 @@ chrono = "0.4.40"
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
 custom-protocol = ["tauri/custom-protocol"]
+
+[[bin]]
+name = "keygen"
+path = "src/bin/keygen.rs"
+
+[[bin]]
+name = "license_generator"
+path = "src/bin/license_generator.rs"
