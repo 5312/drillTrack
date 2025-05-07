@@ -6,6 +6,7 @@
 mod license_utils;
 
 use license_utils::generate_hardware_id;
+use license_utils::verify_license_file;
 use std::fs;
 use std::path::PathBuf;
 use tauri::api::path;
@@ -26,31 +27,21 @@ fn export_machine_id(file_path: &str) -> Result<(), String> {
 // 检查应用程序是否已激活
 #[tauri::command]
 fn check_activation() -> bool {
-    match get_license_path() {
-        Some(path) => {
-            if path.exists() {
-                #[cfg(debug_assertions)]
-                {
-                    true // 在调试模式下，如果许可证文件存在则始终返回true
-                }
-
-                #[cfg(not(debug_assertions))]
-                {
-                    // 在生产中使用适当的验证
-                    // 这是您的实际公钥
-                    let public_key = include_bytes!("../keys/public_key.der");
-                    match verify_license_file(&path, public_key) {
-                        Ok(valid) => valid,
-                        Err(_) => false,
-                    }
-                }
-            } else {
-                false
-            }
-        }
-        None => false,
+    let path = match get_license_path() {
+        Some(p) => p,
+        None => return false,
+    };
+    if !path.exists() {
+        return false;
+    }
+    // 发布模式：验证许可证内容
+    let public_key = include_bytes!("../keys/public_key.der");
+    match verify_license_file(&path, public_key) {
+        Ok(valid) => valid,
+        Err(_) => false,
     }
 }
+
 
 // 使用提供的密钥激活许可证
 #[tauri::command]

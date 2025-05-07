@@ -8,9 +8,9 @@ const Activation = () => {
   const [isActivated, setIsActivated] = useState<boolean>(false);
   const [activationError, setActivationError] = useState<string>('');
   const [activating, setActivating] = useState<boolean>(false);
-
   // 检查应用是否已经激活
   const checkActivation = async () => {
+   
     try {
       const activated: boolean = await invoke('check_activation');
       setIsActivated(activated);
