@@ -5,8 +5,8 @@ use sha2::{Digest, Sha256};
 use std::fs;
 use std::io::Read;
 use std::path::PathBuf;
-use sysinfo::{System, SystemExt};
 use std::process::Command;
+use sysinfo::{System, SystemExt};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct License {
@@ -38,8 +38,7 @@ pub fn verify_license_file(path: &PathBuf, public_key: &[u8]) -> Result<bool, St
         .map_err(|e| format!("Failed to serialize license: {}", e))?;
 
     // 创建公钥对象
-    let public_key =
-        signature::UnparsedPublicKey::new(&signature::ED25519, public_key);
+    let public_key = signature::UnparsedPublicKey::new(&signature::ED25519, public_key);
 
     // 验证签名
     match public_key.verify(&message, &signature_bytes) {
@@ -49,7 +48,7 @@ pub fn verify_license_file(path: &PathBuf, public_key: &[u8]) -> Result<bool, St
             if license.machine_id != current_machine_id {
                 return Ok(false);
             }
-            
+
             // 检查许可证是否过期
             if let Some(expiration) = &license.expiration {
                 if expiration < &chrono::Utc::now().to_rfc3339() {
@@ -66,11 +65,11 @@ pub fn verify_license_file(path: &PathBuf, public_key: &[u8]) -> Result<bool, St
 // 生成防篡改的硬件ID
 pub fn generate_hardware_id() -> String {
     let mut system_info = String::new();
-    
+
     // 初始化系统信息
     let mut system = System::new_all();
     system.refresh_all();
-    
+
     // 获取主机名和系统信息
     if let Some(hostname) = system.host_name() {
         system_info.push_str(&format!("hostname:{}\n", hostname));
@@ -83,18 +82,21 @@ pub fn generate_hardware_id() -> String {
     if let Some(kernel_version) = system.kernel_version() {
         system_info.push_str(&format!("kernel:{}\n", kernel_version));
     }
-    
+
     // 获取系统UUID
     #[cfg(target_os = "windows")]
     {
-        if let Ok(output) = Command::new("wmic").args(["csproduct", "get", "UUID"]).output() {
+        if let Ok(output) = Command::new("wmic")
+            .args(["csproduct", "get", "UUID"])
+            .output()
+        {
             let stdout = String::from_utf8_lossy(&output.stdout);
             if let Some(uuid_line) = stdout.lines().nth(1) {
                 system_info.push_str(&format!("uuid:{}\n", uuid_line.trim()));
             }
         }
     }
-    
+
     // 对收集的信息进行哈希处理
     let mut hasher = Sha256::new();
     hasher.update(system_info.as_bytes());

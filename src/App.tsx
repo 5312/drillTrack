@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { invoke } from '@tauri-apps/api/tauri'
+import { invoke } from '@tauri-apps/api/core'
 import { DrillingDataProvider } from "./context/drilling-data-context"
 import { AppHeader } from "./components/app-header"
 import { AppSidebar } from "./components/app-sidebar"

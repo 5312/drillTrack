@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { invoke } from '@tauri-apps/api/tauri';
-import { save } from '@tauri-apps/api/dialog';
+import { invoke } from '@tauri-apps/api/core';
+import { save } from '@tauri-apps/plugin-dialog';
 
 const Activation = () => {
   const [machineId, setMachineId] = useState<string>('');

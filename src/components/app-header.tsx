@@ -12,7 +12,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "./ui/sheet"
-import { exit } from "@tauri-apps/api/process"
+import { exit } from "@tauri-apps/plugin-process"
 
 export function AppHeader() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)

@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { open, save } from "@tauri-apps/api/dialog"
+import { open, save } from "@tauri-apps/plugin-dialog"
 import { Button } from "./ui/button"
 import { FileText, FolderOpen, FileSpreadsheet, Save, Loader2 } from "lucide-react"
 import { useDrillingData } from "../context/drilling-data-context"

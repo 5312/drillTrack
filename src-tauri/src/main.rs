@@ -9,7 +9,6 @@ use license_utils::generate_hardware_id;
 use license_utils::verify_license_file;
 use std::fs;
 use std::path::PathBuf;
-use tauri::api::path;
 
 // 根据硬件信息获取唯一的机器ID
 #[tauri::command]
@@ -41,7 +40,6 @@ fn check_activation() -> bool {
         Err(_) => false,
     }
 }
-
 
 // 使用提供的密钥激活许可证
 #[tauri::command]
@@ -86,14 +84,20 @@ fn activate_license(license_key: &str) -> Result<bool, String> {
 
 // 获取许可文件的路径
 fn get_license_path() -> Option<PathBuf> {
-    match path::app_config_dir(&tauri::Config::default()) {
-        Some(app_dir) => Some(app_dir.join("license.dat")),
-        None => None,
-    }
+    let home_dir = std::env::var("HOME")
+        .or_else(|_| std::env::var("USERPROFILE"))
+        .ok()
+        .map(PathBuf::from);
+    
+    home_dir.map(|dir| dir.join(".drilltrack").join("license.dat"))
 }
 
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![
             get_machine_id,
             export_machine_id,
