@@ -4,7 +4,6 @@ import { motion } from "framer-motion"
 import { Tabs, TabsList, TabsTrigger } from "./ui/tabs"
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
-import { Checkbox } from "./ui/checkbox"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 import { Grid, BarChart2, CuboidIcon as Cube, RotateCcw, Compass, Loader2 } from "lucide-react"
 import { useDrillingData } from "../context/drilling-data-context"
@@ -17,8 +16,6 @@ interface ControlPanelProps {
 export function ControlPanel({ isProcessing, onProcess }: ControlPanelProps) {
   const {
     setIsLoading,
-    firstHoleAsReference,
-    setFirstHoleAsReference,
     openingAngle,
     setOpeningAngle,
     geoOrientation,
@@ -75,17 +72,7 @@ export function ControlPanel({ isProcessing, onProcess }: ControlPanelProps) {
               </Tabs>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="reference"
-                checked={firstHoleAsReference}
-                onCheckedChange={(checked) => setFirstHoleAsReference(!!checked)}
-                className="data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500 transition-colors"
-              />
-              <label htmlFor="reference" className="text-sm">
-                第一个测点为井孔点
-              </label>
-            </div>
+       
 
             <div className="flex items-center gap-2">
               <label htmlFor="opening-angle" className="text-sm whitespace-nowrap">

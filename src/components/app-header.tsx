@@ -1,11 +1,30 @@
 "use client"
 
+import { useState } from "react"
 import { motion } from "framer-motion"
-import { appWindow } from "@tauri-apps/api/window"
 import { Button } from "./ui/button"
-import { Settings, Minus, Square, X } from "lucide-react"
+import { Settings,  LogOut } from "lucide-react"
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "./ui/sheet"
+import { exit } from "@tauri-apps/api/process"
 
 export function AppHeader() {
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+
+  const handleLogout = async () => {
+    try {
+      await exit(0)
+    } catch (error) {
+      console.error("退出程序失败:", error)
+    }
+  }
+
   return (
     <motion.header
       initial={{ y: -20, opacity: 0 }}
@@ -31,9 +50,32 @@ export function AppHeader() {
             </span>
           </div>
 
-          <Button variant="ghost" size="icon" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-            <Settings className="h-5 w-5" />
-          </Button>
+          <Sheet open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                <Settings className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right">
+              <SheetHeader>
+                <SheetTitle>系统设置</SheetTitle>
+                <SheetDescription>
+                  在这里管理您的系统设置和账户
+                </SheetDescription>
+              </SheetHeader>
+              <div className="p-4 space-y-4">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start gap-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
+                  onClick={handleLogout}
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>退出程序</span>
+                </Button>
+              </div>
+     
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </motion.header>
