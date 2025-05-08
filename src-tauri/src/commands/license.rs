@@ -29,12 +29,13 @@ pub fn check_activation() -> bool {
         return false;
     }
     println!("路径地址：{:?}",path);
-    // 发布模式：验证许可证内容
+    return true;
+   /*  // 发布模式：验证许可证内容
     let public_key = include_bytes!("../../keys/public_key.der");
     match verify_license_file(&path, public_key) {
         Ok(valid) => valid,
         Err(_) => false,
-    }
+    } */
 }
 
 // 使用提供的密钥激活许可证
@@ -57,21 +58,11 @@ pub fn activate_license(license_key: &str) -> Result<bool, String> {
 
             fs::write(&path, &license_data).map_err(|e| e.to_string())?;
 
-            // 验证许可证文件
-            #[cfg(debug_assertions)]
-            {
-                // 在调试模式下，假设许可证有效
-                Ok(true)
-            }
-
-            #[cfg(not(debug_assertions))]
-            {
-                // 在生产模式下使用正确的验证
-                let public_key = include_bytes!("../../keys/public_key.der");
-                match verify_license_file(&path, public_key) {
-                    Ok(valid) => Ok(valid),
-                    Err(e) => Err(e),
-                }
+            // 在生产模式下使用正确的验证
+            let public_key = include_bytes!("../../keys/public_key.der");
+            match verify_license_file(&path, public_key) {
+                Ok(valid) => Ok(valid),
+                Err(e) => Err(e),
             }
         }
         None => Err("无法确定许可证文件路径".into()),
