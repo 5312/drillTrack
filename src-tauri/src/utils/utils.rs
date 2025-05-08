@@ -105,3 +105,13 @@ pub fn generate_hardware_id() -> String {
     // 返回前32个字符作为十六进制格式
     format!("{:x}", result)[..32].to_string()
 }
+
+// 获取许可文件的路径
+pub fn get_license_path() -> Option<PathBuf> {
+    let home_dir = std::env::var("HOME")
+        .or_else(|_| std::env::var("USERPROFILE"))
+        .ok()
+        .map(PathBuf::from);
+    
+    home_dir.map(|dir| dir.join(".drilltrack").join("license.dat"))
+}
