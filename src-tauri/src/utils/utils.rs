@@ -14,28 +14,30 @@ pub struct License {
     pub expiration: Option<String>,
     pub features: Vec<String>,
     pub signature: String,
+    pub created_at: String,
+    pub customer_info: Option<String>,
 }
 
 // 使用适当的签名验证验证许可证文件
 pub fn verify_license_file(path: &PathBuf, public_key: &[u8]) -> Result<bool, String> {
     // 读取许可证文件
-    let mut file = fs::File::open(path).map_err(|e| e.to_string())?;
+    let mut file = fs::File::open(path).map_err(|e| format!("无法打开许可证文件: {}", e))?;
     let mut contents = Vec::new();
-    file.read_to_end(&mut contents).map_err(|e| e.to_string())?;
+    file.read_to_end(&mut contents).map_err(|e| format!("无法读取许可证文件: {}", e))?;
 
     // 解析许可证
-    let license: License = serde_json::from_slice(&contents).map_err(|e| e.to_string())?;
+    let license: License = serde_json::from_slice(&contents).map_err(|e| format!("许可证格式无效: {}", e))?;
 
     // 提取签名
     let signature_bytes = BASE64
         .decode(license.signature.as_bytes())
-        .map_err(|e| format!("Invalid signature encoding: {}", e))?;
+        .map_err(|e| format!("签名编码无效: {}", e))?;
 
     // 创建没有签名的许可证副本用于验证
     let mut license_for_verification = license.clone();
     license_for_verification.signature = String::new();
     let message = serde_json::to_vec(&license_for_verification)
-        .map_err(|e| format!("Failed to serialize license: {}", e))?;
+        .map_err(|e| format!("序列化许可证失败: {}", e))?;
 
     // 创建公钥对象
     let public_key = signature::UnparsedPublicKey::new(&signature::ED25519, public_key);
@@ -50,10 +52,8 @@ pub fn verify_license_file(path: &PathBuf, public_key: &[u8]) -> Result<bool, St
             }
 
             // 检查许可证是否过期
-            if let Some(expiration) = &license.expiration {
-                if expiration < &chrono::Utc::now().to_rfc3339() {
-                    return Ok(false);
-                }
+            if is_license_expired(&license) {
+                return Ok(false);
             }
 
             Ok(true)
@@ -114,4 +114,24 @@ pub fn get_license_path() -> Option<PathBuf> {
         .map(PathBuf::from);
     
     home_dir.map(|dir| dir.join(".drilltrack").join("license.dat"))
+}
+
+// 读取许可证文件并返回许可证内容
+pub fn get_license_info(path: &PathBuf) -> Result<License, String> {
+    // 读取许可证文件
+    let mut file = fs::File::open(path).map_err(|e| e.to_string())?;
+    let mut contents = Vec::new();
+    file.read_to_end(&mut contents).map_err(|e| e.to_string())?;
+
+    // 解析许可证
+    serde_json::from_slice(&contents).map_err(|e| e.to_string())
+}
+
+// 检查许可证是否已过期
+pub fn is_license_expired(license: &License) -> bool {
+    if let Some(expiration) = &license.expiration {
+        expiration < &chrono::Utc::now().to_rfc3339()
+    } else {
+        false // 如果没有过期日期，则视为永久有效
+    }
 }

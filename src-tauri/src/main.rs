@@ -10,7 +10,7 @@ mod commands {
     pub mod license;
 }
 
-use commands::license::{get_machine_id, export_machine_id, check_activation, activate_license};
+use commands::license::{get_machine_id, export_machine_id, check_activation, activate_license, get_license_info_command, is_license_expired_command, import_license_from_file};
 
 fn main() {
     tauri::Builder::default()
@@ -22,7 +22,10 @@ fn main() {
             get_machine_id,
             export_machine_id,
             check_activation,
-            activate_license
+            activate_license,
+            get_license_info_command,
+            is_license_expired_command,
+            import_license_from_file
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
