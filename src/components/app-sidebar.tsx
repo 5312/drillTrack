@@ -91,7 +91,7 @@ export function AppSidebar({ isProcessing, onProcess, onNavigate, currentPage }:
           <div className="space-y-2">
             <Button
               variant={currentPage === 'main' ? "default" : "outline"}
-              className="w-full justify-start gap-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
+              className="w-full justify-start gap-2 hover:bg-slate-100 hover:text-blue-500 dark:hover:bg-slate-700 transition-all"
               onClick={() => onNavigate('main')}
             >
               <FileText className="h-4 w-4" />
@@ -99,7 +99,7 @@ export function AppSidebar({ isProcessing, onProcess, onNavigate, currentPage }:
             </Button>
             <Button
               variant={currentPage === 'network' ? "default" : "outline"}
-              className="w-full justify-start gap-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
+              className="w-full justify-start gap-2 hover:bg-slate-100 hover:text-blue-500 dark:hover:bg-slate-700 transition-all"
               onClick={() => onNavigate('network')}
             >
               <Wifi className="h-4 w-4" />
