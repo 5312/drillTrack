@@ -12,7 +12,7 @@ mod commands {
 }
 
 use commands::license::{get_machine_id, export_machine_id, check_activation, activate_license, get_license_info_command, is_license_expired_command, import_license_from_file};
-use commands::network::{start_discovery_service, stop_discovery_service, get_discovery_status, start_data_server, stop_data_server};
+use commands::network::{start_discovery_service, stop_discovery_service, get_discovery_status, start_data_server, stop_data_server, get_data_server_status};
 
 fn main() {
     tauri::Builder::default()
@@ -38,7 +38,8 @@ fn main() {
             stop_discovery_service,
             get_discovery_status,
             start_data_server,
-            stop_data_server
+            stop_data_server,
+            get_data_server_status
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

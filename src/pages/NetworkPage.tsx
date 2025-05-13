@@ -47,10 +47,12 @@ const NetworkPage: React.FC = () => {
       const discoveryData = await invoke<DiscoveryStatus>('get_discovery_status');
       setDiscoveryStatus(discoveryData);
       
-      // 如果数据服务器正在运行，获取其状态
-      if (serverStatus.running) {
-        const dataServerStatus = await invoke<DataServerStatus>('start_data_server');
+      // 使用新的命令获取数据服务器状态
+      try {
+        const dataServerStatus = await invoke<DataServerStatus>('get_data_server_status');
         setServerStatus(dataServerStatus);
+      } catch (serverErr) {
+        console.error('获取数据服务器状态失败:', serverErr);
       }
     } catch (err) {
       console.error('获取网络状态失败:', err);

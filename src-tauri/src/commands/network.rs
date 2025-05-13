@@ -311,6 +311,15 @@ pub async fn get_discovery_status(
     Ok(discovery_state.clone())
 }
 
+// 获取数据服务器状态
+#[tauri::command]
+pub async fn get_data_server_status(
+    network_state: State<'_, NetworkState>,
+) -> Result<DataServerStatus, String> {
+    let server_state = network_state.data_server.lock().await;
+    Ok(server_state.clone())
+}
+
 // 启动数据接收服务器
 #[tauri::command]
 pub async fn start_data_server(
