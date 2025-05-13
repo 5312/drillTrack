@@ -4,7 +4,7 @@
 )]
 
 mod utils{
-    pub mod utils;
+    pub mod license;
 }
 mod commands {
     pub mod license;

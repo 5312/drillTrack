@@ -1,6 +1,6 @@
 use std::fs;
 
-use crate::utils::utils::{generate_hardware_id, verify_license_file, get_license_path, get_license_info, is_license_expired, License};
+use crate::utils::license::{generate_hardware_id, verify_license_file, get_license_path, get_license_info, is_license_expired, License};
 
 // 根据硬件信息获取唯一的机器ID
 #[tauri::command]
