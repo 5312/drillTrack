@@ -5,7 +5,7 @@ description = "A Tauri App"
 authors = ["you"]
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference.html
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
@@ -23,6 +23,14 @@ tauri-plugin-shell = "2"
 tauri-plugin-dialog = "2"
 tauri-plugin-process = "2"
 tauri-plugin-fs = "2"
+# 网络相关依赖
+tokio = { version = "1", features = ["full"] }
+tokio-stream = "0.1"
+warp = "0.3"
+futures = "0.3"
+thiserror = "1.0"
+anyhow = "1.0"
+local-ip-address = "0.5.1"
 
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!

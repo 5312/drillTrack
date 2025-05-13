@@ -3,15 +3,17 @@
 import { motion } from "framer-motion"
 import { open, save } from "@tauri-apps/plugin-dialog"
 import { Button } from "./ui/button"
-import { FileText, FolderOpen, FileSpreadsheet, Save, Loader2 } from "lucide-react"
+import { FileText, FolderOpen, FileSpreadsheet, Save, Loader2, Wifi } from "lucide-react"
 import { useDrillingData } from "../context/drilling-data-context"
 
 interface AppSidebarProps {
   isProcessing: boolean
   onProcess: () => void
+  onNavigate: (page: string) => void
+  currentPage: string
 }
 
-export function AppSidebar({ isProcessing, onProcess }: AppSidebarProps) {
+export function AppSidebar({ isProcessing, onProcess, onNavigate, currentPage }: AppSidebarProps) {
   const { loadDataFromFile, saveDataToFile } = useDrillingData()
 
   const handleOpenFile = async () => {
@@ -84,6 +86,31 @@ export function AppSidebar({ isProcessing, onProcess }: AppSidebarProps) {
       className="w-64 border-r bg-white dark:bg-slate-800 p-4 shadow-sm"
     >
       <div className="space-y-4">
+        <div className="mb-6">
+          <h2 className="font-medium text-sm text-slate-500 dark:text-slate-400 mb-2">主菜单</h2>
+          <div className="space-y-2">
+            <Button
+              variant={currentPage === 'main' ? "default" : "outline"}
+              className="w-full justify-start gap-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
+              onClick={() => onNavigate('main')}
+            >
+              <FileText className="h-4 w-4" />
+              <span>主页面</span>
+            </Button>
+            <Button
+              variant={currentPage === 'network' ? "default" : "outline"}
+              className="w-full justify-start gap-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
+              onClick={() => onNavigate('network')}
+            >
+              <Wifi className="h-4 w-4" />
+              <span>网络连接</span>
+            </Button>
+          </div>
+        </div>
+
+        <div className="mb-2">
+          <h2 className="font-medium text-sm text-slate-500 dark:text-slate-400 mb-2">数据操作</h2>
+        </div>
         <Button
           variant="outline"
           className="w-full justify-start gap-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
