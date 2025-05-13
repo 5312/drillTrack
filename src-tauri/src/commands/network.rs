@@ -73,12 +73,7 @@ fn get_local_ipv4_addresses() -> Vec<String> {
                         }else{
                             None
                         }
-                       /*  // 过滤 127 和 169.254 开头的地址
-                        if !ipv4.is_loopback() && !ipv4.octets().starts_with(&[169, 254]) {
-                            return Some(ipv4.to_string());
-                        }else{
-                            None
-                        } */
+                   
                     } else {
                         None
                     }
