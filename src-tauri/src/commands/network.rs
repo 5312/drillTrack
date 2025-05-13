@@ -43,7 +43,7 @@ impl Default for NetworkState {
             discovery: TokioMutex::new(DiscoveryStatus {
                 active: false,
                 port: 9090,
-                server_name: "DrillTrack".to_string(),
+                server_name: "钻孔轨迹仪数据处理系统".to_string(),
                 discovered_clients: Vec::new(),
             }),
             data_server: TokioMutex::new(DataServerStatus {
@@ -111,7 +111,7 @@ pub async fn start_discovery_service(
     
     // 设置参数
     let discovery_port = port.unwrap_or(9090);
-    let name = server_name.unwrap_or("DrillTrack".to_string());
+    let name = server_name.unwrap_or("钻孔轨迹仪数据处理系统".to_string());
     discovery_state.port = discovery_port;
     discovery_state.server_name = name.clone();
     discovery_state.active = true;

@@ -17,7 +17,7 @@
       "icons/icon.ico"
     ]
   },
-  "productName": "drilltrack",
+  "productName": "钻孔轨迹仪数据处理系统",
   "mainBinaryName": "drilltrack",
   "version": "0.1.0",
   "identifier": "com.drilltrack.app",
@@ -29,8 +29,7 @@
     "windows": [
       {
         "title": "钻孔轨迹仪数据处理系统",
-        "width": 1300,
-        "height": 900,
+        "maximized": true,
         "useHttpsScheme": true
       }
     ]

@@ -20,7 +20,7 @@ const NetworkPage: React.FC = () => {
   const [discoveryStatus, setDiscoveryStatus] = useState<DiscoveryStatus>({
     active: false,
     port: 9090,
-    server_name: 'DrillTrack',
+    server_name: '钻孔轨迹仪数据处理系统',
     discovered_clients: []
   });
 
@@ -33,7 +33,7 @@ const NetworkPage: React.FC = () => {
   });
 
   // 表单输入
-  const [serverName, setServerName] = useState('DrillTrack');
+  const [serverName, setServerName] = useState('钻孔轨迹仪数据处理系统');
   const [discoveryPort, setDiscoveryPort] = useState('9090');
   const [serverPort, setServerPort] = useState('8080');
 
