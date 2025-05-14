@@ -6,13 +6,17 @@
 mod utils{
     pub mod license;
 }
-mod commands {
-    pub mod license;
-    pub mod network;
+mod commands;
+mod services {
+    pub mod db;
+}
+mod models {
+    pub mod user;
 }
 
 use commands::license::{get_machine_id, export_machine_id, check_activation, activate_license, get_license_info_command, is_license_expired_command, import_license_from_file};
 use commands::network::{start_discovery_service, stop_discovery_service, get_discovery_status, start_data_server, stop_data_server, get_data_server_status};
+use commands::db::{init_database, get_db_status, close_database, execute_query, get_all_users, get_user_by_id, search_users, save_user, delete_user};
 
 fn main() {
     tauri::Builder::default()
@@ -39,7 +43,17 @@ fn main() {
             get_discovery_status,
             start_data_server,
             stop_data_server,
-            get_data_server_status
+            get_data_server_status,
+            // 数据库相关命令
+            init_database,
+            get_db_status,
+            close_database,
+            execute_query,
+            get_all_users,
+            get_user_by_id,
+            search_users,
+            save_user,
+            delete_user
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
