@@ -7,12 +7,8 @@ mod utils{
     pub mod license;
 }
 mod commands;
-mod services {
-    pub mod db;
-}
-mod models {
-    pub mod user;
-}
+mod services;
+mod models;
 
 use commands::license::{get_machine_id, export_machine_id, check_activation, activate_license, get_license_info_command, is_license_expired_command, import_license_from_file};
 use commands::network::{start_discovery_service, stop_discovery_service, get_discovery_status, start_data_server, stop_data_server, get_data_server_status};
