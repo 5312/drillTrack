@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core'
+import { getAllRepos, Repo } from '../lib/db';
 
 interface DiscoveryStatus {
   active: boolean;
@@ -40,6 +41,11 @@ const NetworkPage: React.FC = () => {
   // 错误信息
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  // 仓库数据
+  const [repos, setRepos] = useState<Repo[]>([]);
+  const [repoLoading, setRepoLoading] = useState(false);
+  const [repoError, setRepoError] = useState('');
 
   // 刷新状态
   const refreshStatus = async () => {
@@ -140,6 +146,23 @@ const NetworkPage: React.FC = () => {
       setError(err.toString());
     }
   };
+
+  const fetchRepos = async () => {
+    setRepoLoading(true);
+    setRepoError('');
+    try {
+      const data = await getAllRepos();
+      setRepos(data);
+    } catch (err: any) {
+      setRepoError('获取仓库数据失败: ' + err.toString());
+    } finally {
+      setRepoLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRepos();
+  }, []);
 
   return (
     <div className="container mx-auto p-4">
@@ -290,6 +313,53 @@ const NetworkPage: React.FC = () => {
           <li>Android设备可以通过UDP广播发现PC服务器，然后通过HTTP协议发送数据。</li>
           <li>Android客户端示例代码已在集成指南中提供。</li>
         </ol>
+      </div>
+
+      {/* 仓库数据 */}
+      <div className="mt-8 bg-white shadow-md rounded p-6">
+        <h2 className="text-xl font-semibold mb-4">仓库（repo）数据</h2>
+        <button
+          className="mb-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded"
+          onClick={fetchRepos}
+          disabled={repoLoading}
+        >
+          {repoLoading ? '加载中...' : '刷新'}
+        </button>
+        {repoError && <div className="text-red-500 mb-2">{repoError}</div>}
+        <div className="overflow-x-auto">
+          <table className="min-w-full border text-sm">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="border px-2 py-1">ID</th>
+                <th className="border px-2 py-1">名称</th>
+                <th className="border px-2 py-1">mn_time</th>
+                <th className="border px-2 py-1">长度</th>
+                <th className="border px-2 py-1">矿山</th>
+                <th className="border px-2 py-1">作业</th>
+                <th className="border px-2 py-1">工厂</th>
+                <th className="border px-2 py-1">钻孔</th>
+              </tr>
+            </thead>
+            <tbody>
+              {repos.length === 0 ? (
+                <tr><td colSpan={8} className="text-center py-2">暂无数据</td></tr>
+              ) : (
+                repos.map(repo => (
+                  <tr key={repo.id}>
+                    <td className="border px-2 py-1">{repo.id}</td>
+                    <td className="border px-2 py-1">{repo.name}</td>
+                    <td className="border px-2 py-1">{repo.mn_time}</td>
+                    <td className="border px-2 py-1">{repo.len}</td>
+                    <td className="border px-2 py-1">{repo.mine}</td>
+                    <td className="border px-2 py-1">{repo.work}</td>
+                    <td className="border px-2 py-1">{repo.factory}</td>
+                    <td className="border px-2 py-1">{repo.drilling}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

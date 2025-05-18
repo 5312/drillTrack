@@ -1,8 +1,9 @@
-use std::path::Path;
+use crate::models::repo::Repo;
 use anyhow::Result;
 use once_cell::sync::OnceCell;
-use rusqlite::{Connection, params, Result as SqliteResult};
+use rusqlite::{params, Connection, Result as SqliteResult};
 use serde::{Deserialize, Serialize};
+use std::path::Path;
 use tokio::sync::Mutex;
 use tokio_rusqlite::Connection as TokioConnection;
 
@@ -33,24 +34,25 @@ static DB_PATH: OnceCell<Mutex<Option<String>>> = OnceCell::new();
 /// 初始化数据库
 pub async fn init_db(db_path: &str) -> Result<(), DbError> {
     let path = Path::new(db_path);
-    
+
     // 确保目录存在
     if let Some(parent) = path.parent() {
         if !parent.exists() {
             std::fs::create_dir_all(parent).map_err(|e| DbError::Other(e.into()))?;
         }
     }
-    
+
     // 使用tokio_rusqlite打开数据库连接
-    let conn = TokioConnection::open(db_path).await
+    let conn = TokioConnection::open(db_path)
+        .await
         .map_err(|e| DbError::Other(e.into()))?;
-    
+
     // 初始化表
     conn.call(|conn| {
-        conn.execute_batch("
+        conn.execute_batch(
+            "
             BEGIN;
             
-            -- 创建表的SQL语句放在这里，例如:
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
@@ -58,22 +60,34 @@ pub async fn init_db(db_path: &str) -> Result<(), DbError> {
                 created_at TEXT NOT NULL DEFAULT (datetime('now'))
             );
             
-            -- 可以添加更多表
+            CREATE TABLE IF NOT EXISTS repo (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                mn_time TEXT NOT NULL,
+                len INTEGER NOT NULL,
+                mine TEXT NOT NULL,
+                work TEXT NOT NULL,
+                factory TEXT NOT NULL,
+                drilling TEXT NOT NULL
+            );
             
             COMMIT;
-        ")
-    }).await.map_err(|e| DbError::Other(e.into()))?;
-    
+        ",
+        )
+    })
+    .await
+    .map_err(|e| DbError::Other(e.into()))?;
+
     // 初始化全局连接
     let conn_mutex = DB_CONNECTION.get_or_init(|| Mutex::new(None));
     let mut conn_guard = conn_mutex.lock().await;
     *conn_guard = Some(conn);
-    
+
     // 保存数据库路径
     let path_mutex = DB_PATH.get_or_init(|| Mutex::new(None));
     let mut path_guard = path_mutex.lock().await;
     *path_guard = Some(db_path.to_string());
-    
+
     Ok(())
 }
 
@@ -81,14 +95,14 @@ pub async fn init_db(db_path: &str) -> Result<(), DbError> {
 pub async fn get_db_status() -> DbStatus {
     let path_mutex = DB_PATH.get_or_init(|| Mutex::new(None));
     let path_guard = path_mutex.lock().await;
-    
+
     let conn_initialized = if let Some(conn_mutex) = DB_CONNECTION.get() {
         let conn_guard = conn_mutex.lock().await;
         conn_guard.is_some()
     } else {
         false
     };
-    
+
     DbStatus {
         initialized: conn_initialized,
         path: path_guard.clone(),
@@ -104,13 +118,13 @@ pub async fn close_db() -> Result<(), DbError> {
             drop(conn);
         }
     }
-    
+
     // 清除路径信息
     if let Some(path_mutex) = DB_PATH.get() {
         let mut path_guard = path_mutex.lock().await;
         *path_guard = None;
     }
-    
+
     Ok(())
 }
 
@@ -120,101 +134,103 @@ pub async fn query_all_users() -> Result<Vec<(i64, String, Option<String>, Strin
         Some(m) => m,
         None => return Err(DbError::NotInitialized),
     };
-    
+
     let conn_guard = conn_mutex.lock().await;
     let conn = match &*conn_guard {
         Some(c) => c,
         None => return Err(DbError::NotInitialized),
     };
-    
-    let users = conn.call(|c| {
-        let mut stmt = c.prepare("SELECT id, name, email, created_at FROM users ORDER BY id")?;
-        let rows = stmt.query_map([], |row| {
-            Ok((
-                row.get(0)?,
-                row.get(1)?,
-                row.get(2)?,
-                row.get(3)?,
-            ))
-        })?;
-        
-        let mut result = Vec::new();
-        for user in rows {
-            result.push(user?);
-        }
-        
-        Ok::<_, rusqlite::Error>(result)
-    }).await.map_err(|e| DbError::Other(e.into()))?;
-    
+
+    let users = conn
+        .call(|c| {
+            let mut stmt =
+                c.prepare("SELECT id, name, email, created_at FROM users ORDER BY id")?;
+            let rows = stmt.query_map([], |row| {
+                Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?))
+            })?;
+
+            let mut result = Vec::new();
+            for user in rows {
+                result.push(user?);
+            }
+
+            Ok::<_, rusqlite::Error>(result)
+        })
+        .await
+        .map_err(|e| DbError::Other(e.into()))?;
+
     Ok(users)
 }
 
 /// 通过ID查询用户 - 特定实现
-pub async fn query_user_by_id(id: i64) -> Result<Option<(i64, String, Option<String>, String)>, DbError> {
+pub async fn query_user_by_id(
+    id: i64,
+) -> Result<Option<(i64, String, Option<String>, String)>, DbError> {
     let conn_mutex = match DB_CONNECTION.get() {
         Some(m) => m,
         None => return Err(DbError::NotInitialized),
     };
-    
+
     let conn_guard = conn_mutex.lock().await;
     let conn = match &*conn_guard {
         Some(c) => c,
         None => return Err(DbError::NotInitialized),
     };
-    
-    let user = conn.call(move |c| {
-        let mut stmt = c.prepare("SELECT id, name, email, created_at FROM users WHERE id = ?")?;
-        let mut rows = stmt.query(params![id])?;
-        
-        if let Some(row) = rows.next()? {
-            Ok(Some((
-                row.get(0)?,
-                row.get(1)?,
-                row.get(2)?,
-                row.get(3)?,
-            )))
-        } else {
-            Ok(None)
-        }
-    }).await.map_err(|e| DbError::Other(e.into()))?;
-    
+
+    let user = conn
+        .call(move |c| {
+            let mut stmt =
+                c.prepare("SELECT id, name, email, created_at FROM users WHERE id = ?")?;
+            let mut rows = stmt.query(params![id])?;
+
+            if let Some(row) = rows.next()? {
+                Ok(Some((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)))
+            } else {
+                Ok(None)
+            }
+        })
+        .await
+        .map_err(|e| DbError::Other(e.into()))?;
+
     Ok(user)
 }
 
 /// 按名称搜索用户 - 特定实现
-pub async fn search_users_by_name(name_pattern: &str) -> Result<Vec<(i64, String, Option<String>, String)>, DbError> {
+pub async fn search_users_by_name(
+    name_pattern: &str,
+) -> Result<Vec<(i64, String, Option<String>, String)>, DbError> {
     let conn_mutex = match DB_CONNECTION.get() {
         Some(m) => m,
         None => return Err(DbError::NotInitialized),
     };
-    
+
     let conn_guard = conn_mutex.lock().await;
     let conn = match &*conn_guard {
         Some(c) => c,
         None => return Err(DbError::NotInitialized),
     };
-    
+
     let pattern = format!("%{}%", name_pattern);
-    
-    let users = conn.call(move |c| {
-        let mut stmt = c.prepare("SELECT id, name, email, created_at FROM users WHERE name LIKE ? ORDER BY name")?;
-        let rows = stmt.query_map(params![pattern], |row| {
-            Ok((
-                row.get(0)?,
-                row.get(1)?,
-                row.get(2)?,
-                row.get(3)?,
-            ))
-        })?;
-        
-        let mut result = Vec::new();
-        for user in rows {
-            result.push(user?);
-        }
-        
-        Ok::<_, rusqlite::Error>(result)
-    }).await.map_err(|e| DbError::Other(e.into()))?;
-    
+
+    let users = conn
+        .call(move |c| {
+            let mut stmt = c.prepare(
+                "SELECT id, name, email, created_at FROM users WHERE name LIKE ? ORDER BY name",
+            )?;
+            let rows = stmt.query_map(params![pattern], |row| {
+                Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?))
+            })?;
+
+            let mut result = Vec::new();
+            for user in rows {
+                result.push(user?);
+            }
+
+            Ok::<_, rusqlite::Error>(result)
+        })
+        .await
+        .map_err(|e| DbError::Other(e.into()))?;
+
     Ok(users)
 }
 
@@ -224,36 +240,40 @@ pub async fn save_user(id: Option<i64>, name: &str, email: Option<&str>) -> Resu
         Some(m) => m,
         None => return Err(DbError::NotInitialized),
     };
-    
+
     let conn_guard = conn_mutex.lock().await;
     let conn = match &*conn_guard {
         Some(c) => c,
         None => return Err(DbError::NotInitialized),
     };
-    
+
     let name_owned = name.to_string();
     let email_owned = email.map(|e| e.to_string());
-    
+
     match id {
         Some(user_id) => {
             // 更新用户
             conn.call(move |c| {
                 c.execute(
                     "UPDATE users SET name = ?, email = ? WHERE id = ?",
-                    params![name_owned, email_owned, user_id]
+                    params![name_owned, email_owned, user_id],
                 )?;
                 Ok::<_, rusqlite::Error>(user_id)
-            }).await.map_err(|e| DbError::Other(e.into()))
-        },
+            })
+            .await
+            .map_err(|e| DbError::Other(e.into()))
+        }
         None => {
             // 插入新用户
             conn.call(move |c| {
                 c.execute(
                     "INSERT INTO users (name, email) VALUES (?, ?)",
-                    params![name_owned, email_owned]
+                    params![name_owned, email_owned],
                 )?;
                 Ok(c.last_insert_rowid())
-            }).await.map_err(|e| DbError::Other(e.into()))
+            })
+            .await
+            .map_err(|e| DbError::Other(e.into()))
         }
     }
 }
@@ -264,18 +284,21 @@ pub async fn delete_user(id: i64) -> Result<bool, DbError> {
         Some(m) => m,
         None => return Err(DbError::NotInitialized),
     };
-    
+
     let conn_guard = conn_mutex.lock().await;
     let conn = match &*conn_guard {
         Some(c) => c,
         None => return Err(DbError::NotInitialized),
     };
-    
-    let rows = conn.call(move |c| {
-        let rows = c.execute("DELETE FROM users WHERE id = ?", params![id])?;
-        Ok::<_, rusqlite::Error>(rows)
-    }).await.map_err(|e| DbError::Other(e.into()))?;
-    
+
+    let rows = conn
+        .call(move |c| {
+            let rows = c.execute("DELETE FROM users WHERE id = ?", params![id])?;
+            Ok::<_, rusqlite::Error>(rows)
+        })
+        .await
+        .map_err(|e| DbError::Other(e.into()))?;
+
     Ok(rows > 0)
 }
 
@@ -285,54 +308,97 @@ pub async fn execute_custom_query(sql: &str) -> Result<Vec<serde_json::Value>, D
         Some(m) => m,
         None => return Err(DbError::NotInitialized),
     };
-    
+
     let conn_guard = conn_mutex.lock().await;
     let conn = match &*conn_guard {
         Some(c) => c,
         None => return Err(DbError::NotInitialized),
     };
-    
+
     let sql_owned = sql.to_string();
-    
-    let result = conn.call(move |c| {
-        let mut stmt = c.prepare(&sql_owned)?;
-        let column_names: Vec<String> = stmt.column_names().into_iter().map(|s| s.to_string()).collect();
-        
-        let rows = stmt.query_map([], |row| {
-            let mut map = serde_json::Map::new();
-            
-            for (i, col_name) in column_names.iter().enumerate() {
-                let value = match row.get_ref(i)? {
-                    rusqlite::types::ValueRef::Null => serde_json::Value::Null,
-                    rusqlite::types::ValueRef::Integer(i) => serde_json::Value::Number(i.into()),
-                    rusqlite::types::ValueRef::Real(f) => {
-                        if let Some(n) = serde_json::Number::from_f64(f) {
-                            serde_json::Value::Number(n)
-                        } else {
-                            serde_json::Value::String(f.to_string())
+
+    let result = conn
+        .call(move |c| {
+            let mut stmt = c.prepare(&sql_owned)?;
+            let column_names: Vec<String> = stmt
+                .column_names()
+                .into_iter()
+                .map(|s| s.to_string())
+                .collect();
+
+            let rows = stmt.query_map([], |row| {
+                let mut map = serde_json::Map::new();
+
+                for (i, col_name) in column_names.iter().enumerate() {
+                    let value = match row.get_ref(i)? {
+                        rusqlite::types::ValueRef::Null => serde_json::Value::Null,
+                        rusqlite::types::ValueRef::Integer(i) => {
+                            serde_json::Value::Number(i.into())
                         }
-                    },
-                    rusqlite::types::ValueRef::Text(t) => {
-                        serde_json::Value::String(String::from_utf8_lossy(t).to_string())
-                    },
-                    rusqlite::types::ValueRef::Blob(b) => {
-                        serde_json::Value::String(format!("<BLOB: {} bytes>", b.len()))
-                    },
-                };
-                
-                map.insert(col_name.clone(), value);
+                        rusqlite::types::ValueRef::Real(f) => {
+                            if let Some(n) = serde_json::Number::from_f64(f) {
+                                serde_json::Value::Number(n)
+                            } else {
+                                serde_json::Value::String(f.to_string())
+                            }
+                        }
+                        rusqlite::types::ValueRef::Text(t) => {
+                            serde_json::Value::String(String::from_utf8_lossy(t).to_string())
+                        }
+                        rusqlite::types::ValueRef::Blob(b) => {
+                            serde_json::Value::String(format!("<BLOB: {} bytes>", b.len()))
+                        }
+                    };
+
+                    map.insert(col_name.clone(), value);
+                }
+
+                Ok(serde_json::Value::Object(map))
+            })?;
+
+            let mut result = Vec::new();
+            for row in rows {
+                result.push(row?);
             }
-            
-            Ok(serde_json::Value::Object(map))
+
+            Ok::<_, rusqlite::Error>(result)
+        })
+        .await
+        .map_err(|e| DbError::Other(e.into()))?;
+
+    Ok(result)
+}
+
+/// 查询所有 repo
+pub async fn query_all_repos() -> Result<Vec<Repo>, DbError> {
+    let conn_mutex = match DB_CONNECTION.get() {
+        Some(m) => m,
+        None => return Err(DbError::NotInitialized),
+    };
+    let conn_guard = conn_mutex.lock().await;
+    let conn = match &*conn_guard {
+        Some(c) => c,
+        None => return Err(DbError::NotInitialized),
+    };
+    let repos = conn.call(|c| {
+        let mut stmt = c.prepare("SELECT id, name, mn_time, len, mine, work, factory, drilling FROM repo ORDER BY id")?;
+        let rows = stmt.query_map([], |row| {
+            Ok(Repo {
+                id: row.get(0)?,
+                name: row.get(1)?,
+                mn_time: row.get(2)?,
+                len: row.get(3)?,
+                mine: row.get(4)?,
+                work: row.get(5)?,
+                factory: row.get(6)?,
+                drilling: row.get(7)?,
+            })
         })?;
-        
         let mut result = Vec::new();
-        for row in rows {
-            result.push(row?);
+        for repo in rows {
+            result.push(repo?);
         }
-        
         Ok::<_, rusqlite::Error>(result)
     }).await.map_err(|e| DbError::Other(e.into()))?;
-    
-    Ok(result)
-} 
+    Ok(repos)
+}

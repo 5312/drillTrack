@@ -12,6 +12,17 @@ export interface DbStatus {
   path?: string;
 }
 
+export interface Repo {
+  id?: number;
+  name: string;
+  mn_time: string;
+  len: number;
+  mine: string;
+  work: string;
+  factory: string;
+  drilling: string;
+}
+
 // 初始化数据库
 export async function initDatabase(dbPath?: string): Promise<DbStatus> {
   return await invoke('init_database', { dbPath });
@@ -57,6 +68,11 @@ export async function saveUser(user: User): Promise<number> {
 // 删除用户
 export async function deleteUser(id: number): Promise<boolean> {
   return await invoke('delete_user', { id });
+}
+
+// 获取所有仓库
+export async function getAllRepos(): Promise<Repo[]> {
+  return await invoke('get_all_repos');
 }
 
 // 数据库使用示例

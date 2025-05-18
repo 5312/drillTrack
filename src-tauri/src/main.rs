@@ -3,16 +3,25 @@
     windows_subsystem = "windows"
 )]
 
-mod utils{
+mod utils {
     pub mod license;
 }
 mod commands;
-mod services;
 mod models;
+mod services;
 
-use commands::license::{get_machine_id, export_machine_id, check_activation, activate_license, get_license_info_command, is_license_expired_command, import_license_from_file};
-use commands::network::{start_discovery_service, stop_discovery_service, get_discovery_status, start_data_server, stop_data_server, get_data_server_status};
-use commands::db::{init_database, get_db_status, close_database, execute_query, get_all_users, get_user_by_id, search_users, save_user, delete_user};
+use commands::db::{
+    close_database, delete_user, execute_query, get_all_repos, get_all_users, get_db_status,
+    get_user_by_id, init_database, save_user, search_users,
+};
+use commands::license::{
+    activate_license, check_activation, export_machine_id, get_license_info_command,
+    get_machine_id, import_license_from_file, is_license_expired_command,
+};
+use commands::network::{
+    get_data_server_status, get_discovery_status, start_data_server, start_discovery_service,
+    stop_data_server, stop_discovery_service,
+};
 
 fn main() {
     tauri::Builder::default()
@@ -49,7 +58,8 @@ fn main() {
             get_user_by_id,
             search_users,
             save_user,
-            delete_user
+            delete_user,
+            get_all_repos
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

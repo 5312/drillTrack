@@ -10,6 +10,7 @@ import { DataDisplay } from "./components/data-display"
 import Activation from "./pages/Activation"
 import NetworkPage from "./pages/NetworkPage"
 import "./App.css"
+import { initDatabase } from './lib/db';
 
 function App() {
   const [isProcessing, setIsProcessing] = useState(false)
@@ -18,6 +19,11 @@ function App() {
 
   // 检查应用是否已激活
   useEffect(() => {
+        // 初始化数据库
+  initDatabase().catch(err => {
+    // 可以在这里处理初始化失败的情况
+    console.error('数据库初始化失败:', err);
+  });
     const checkActivation = async () => {
       try {
         const activated: boolean = await invoke('check_activation')
