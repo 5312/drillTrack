@@ -1,12 +1,12 @@
 use crate::models::repo::Repo;
 use anyhow::Result;
 use once_cell::sync::OnceCell;
-use rusqlite::{params, Connection, Result as SqliteResult};
+use rusqlite::params;
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 use tokio::sync::Mutex;
+use tokio::sync::MutexGuard;
 use tokio_rusqlite::Connection as TokioConnection;
-
 // 全局数据库连接
 static DB_CONNECTION: OnceCell<Mutex<Option<TokioConnection>>> = OnceCell::new();
 
@@ -61,7 +61,7 @@ pub async fn init_db(db_path: &str) -> Result<(), DbError> {
             );
             
             CREATE TABLE IF NOT EXISTS repo (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL,
                 mn_time TEXT NOT NULL,
                 len INTEGER NOT NULL,
@@ -71,6 +71,19 @@ pub async fn init_db(db_path: &str) -> Result<(), DbError> {
                 drilling TEXT NOT NULL
             );
             
+            CREATE TABLE IF NOT EXISTS data_list (
+                id INTEGER PRIMARY KEY,
+                time TEXT,
+                depth REAL NOT NULL,
+                pitch REAL,
+                roll REAL,
+                heading REAL,
+                repo_id INTEGER,
+                design_pitch REAL,
+                design_heading REAL,
+                FOREIGN KEY (repo_id) REFERENCES repo(id)
+            );
+
             COMMIT;
         ",
         )
@@ -386,7 +399,7 @@ pub async fn query_all_repos() -> Result<Vec<Repo>, DbError> {
             Ok(Repo {
                 id: row.get(0)?,
                 name: row.get(1)?,
-                mn_time: row.get(2)?,
+                mnTime: row.get(2)?,
                 len: row.get(3)?,
                 mine: row.get(4)?,
                 work: row.get(5)?,
@@ -401,4 +414,17 @@ pub async fn query_all_repos() -> Result<Vec<Repo>, DbError> {
         Ok::<_, rusqlite::Error>(result)
     }).await.map_err(|e| DbError::Other(e.into()))?;
     Ok(repos)
+}
+
+/// 获取全局连接的锁
+pub async fn get_conn() -> Result<MutexGuard<'static, Option<TokioConnection>>, DbError> {
+    let conn_mutex = DB_CONNECTION.get().ok_or(DbError::NotInitialized)?;
+
+    let guard = conn_mutex.lock().await;
+
+    if guard.is_none() {
+        Err(DbError::NotInitialized)
+    } else {
+        Ok(guard)
+    }
 }

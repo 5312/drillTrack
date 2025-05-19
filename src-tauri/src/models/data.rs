@@ -1,7 +1,7 @@
-use crate::services::db;
 use serde::{Deserialize, Serialize};
 
-struct DataListModel {
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DataList {
     id: Option<i32>,
     time: Option<String>,
     // 深度
@@ -24,3 +24,5 @@ struct DataListModel {
     // 设计方位角
     design_heading: Option<f64>,
 }
+
+impl DataList {}
