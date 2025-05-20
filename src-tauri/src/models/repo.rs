@@ -6,7 +6,10 @@ use serde::{Deserialize, Serialize};
 pub struct Repo {
     pub id: Option<i32>,
     pub name: String,
-    pub mnTime: String,
+
+    #[serde(alias = "mnTime")]
+    pub mn_time: String,
+
     pub len: i32,
     pub mine: String,
     pub work: String,
@@ -33,7 +36,7 @@ impl Repo {
                 params![
                     repo.id,
                     repo.name,
-                    repo.mnTime,
+                    repo.mn_time,
                     repo.len,
                     repo.mine,
                     repo.work,
@@ -75,7 +78,7 @@ impl Repo {
                     ",
                     params![
                         repo.name,
-                        repo.mnTime,
+                        repo.mn_time,
                         repo.len,
                         repo.mine,
                         repo.work,
@@ -108,7 +111,7 @@ impl Repo {
                 Ok(Some(Repo {
                     id: Some(row.get(0)?),
                     name: row.get(1)?,
-                    mnTime: row.get(2)?,
+                    mn_time: row.get(2)?,
                     len: row.get(3)?,
                     mine: row.get(4)?,
                     work: row.get(5)?,

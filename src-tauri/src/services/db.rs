@@ -399,7 +399,7 @@ pub async fn query_all_repos() -> Result<Vec<Repo>, DbError> {
             Ok(Repo {
                 id: row.get(0)?,
                 name: row.get(1)?,
-                mnTime: row.get(2)?,
+                mn_time: row.get(2)?,
                 len: row.get(3)?,
                 mine: row.get(4)?,
                 work: row.get(5)?,

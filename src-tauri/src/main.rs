@@ -32,7 +32,14 @@ fn main() {
         .setup(|app| {
             // 初始化网络模块
             commands::network::init(app)?;
+
             Ok(())
+        })
+        .on_window_event(|_, event| {
+            if let tauri::WindowEvent::CloseRequested { .. } = event {
+                // 在窗口关闭时关闭数据库连接
+                let _ = tauri::async_runtime::block_on(close_database());
+            }
         })
         .invoke_handler(tauri::generate_handler![
             get_machine_id,

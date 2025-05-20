@@ -1,8 +1,11 @@
 use crate::models::data::DataList;
 use crate::models::repo::Repo;
+
 use serde::{Deserialize, Serialize};
+
 use warp::http::StatusCode;
 use warp::Filter;
+
 fn status_route() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     warp::path("api")
         .and(warp::path("status"))
@@ -40,41 +43,58 @@ fn data_route() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejecti
 #[derive(Serialize, Deserialize, Debug)]
 struct DrillData {
     timestamp: i64, // 毫秒时间戳，用 i64 表示
-    deviceId: String,
-    dataType: String,
-    values: Repo,             // 不确定结构，用 serde_json::Value
+
+    #[serde(alias = "deviceId")]
+    device_id: String,
+
+    #[serde(alias = "dataType")]
+    data_type: String,
+
+    values: Repo,
     data_list: Vec<DataList>, // data_list 是对象数组
 }
 
-async fn handle_input(data: serde_json::Value) -> Result<impl warp::Reply, warp::Rejection> {
-    let model: Result<Repo, _> = serde_json::from_value(data["values"].clone());
+async fn handle_input(data: DrillData) -> Result<impl warp::Reply, warp::Rejection> {
+    let model_repo = data.values;
+    let mut model_data_list = data.data_list;
 
-    println!("{}", data["values"].clone());
+    println!("{:?}", model_repo);
+    println!("{:?}", model_data_list);
 
-    let resp = match model {
-        Ok(model) => match Repo::insert_repo(model).await {
-            Ok(id) => warp::reply::with_status(
+    let resp = match Repo::insert_repo(model_repo).await {
+        Ok(id) => {
+            for item in &mut model_data_list {
+                item.repo_id = Some(id as i32);
+            }
+            if let Err(e) = futures::future::try_join_all(
+                model_data_list.into_iter().map(DataList::insert_data),
+            )
+            .await
+            {
+                return Ok(warp::reply::with_status(
+                    warp::reply::json(&serde_json::json!({
+                        "status": "error",
+                        "message": format!("data_list 插入失败: {}", e)
+                    })),
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                ));
+            }
+
+            warp::reply::with_status(
                 warp::reply::json(&serde_json::json!({
                     "status": "success",
-                    "message": "repo已接收并存储",
+                    "message": "repo 和 data_list 已接收并存储",
                     "id": id
                 })),
                 StatusCode::OK,
-            ),
-            Err(e) => warp::reply::with_status(
-                warp::reply::json(&serde_json::json!({
-                    "status": "error",
-                    "message": format!("数据库写入失败: {}", e)
-                })),
-                StatusCode::INTERNAL_SERVER_ERROR,
-            ),
-        },
+            )
+        }
         Err(e) => warp::reply::with_status(
             warp::reply::json(&serde_json::json!({
                 "status": "error",
-                "message": format!("数据格式错误: {}", e)
+                "message": format!("数据库写入失败: {}", e)
             })),
-            StatusCode::BAD_REQUEST,
+            StatusCode::INTERNAL_SERVER_ERROR,
         ),
     };
 
