@@ -1,3 +1,4 @@
+use crate::models::data::DataList;
 use crate::models::repo::Repo;
 use anyhow::Result;
 use once_cell::sync::OnceCell;
@@ -427,4 +428,47 @@ pub async fn get_conn() -> Result<MutexGuard<'static, Option<TokioConnection>>, 
     } else {
         Ok(guard)
     }
+}
+
+/// 根据 repo_id 查询 data_list 数据
+pub async fn query_data_list_by_repo_id(repo_id: i32) -> Result<Vec<DataList>, DbError> {
+    let conn_mutex = match DB_CONNECTION.get() {
+        Some(m) => m,
+        None => return Err(DbError::NotInitialized),
+    };
+    let conn_guard = conn_mutex.lock().await;
+    let conn = match &*conn_guard {
+        Some(c) => c,
+        None => return Err(DbError::NotInitialized),
+    };
+    let data_list = conn
+        .call(move |c| {
+            let mut stmt = c.prepare(
+            "SELECT id, time, depth, pitch, roll, heading, repo_id, design_pitch, design_heading 
+             FROM data_list 
+             WHERE repo_id = ? 
+             ORDER BY depth"
+        )?;
+            let rows = stmt.query_map(params![repo_id], |row| {
+                Ok(DataList {
+                    id: Some(row.get(0)?),
+                    time: row.get(1)?,
+                    depth: row.get(2)?,
+                    pitch: row.get(3)?,
+                    roll: row.get(4)?,
+                    heading: row.get(5)?,
+                    repo_id: Some(row.get(6)?),
+                    design_pitch: row.get(7)?,
+                    design_heading: row.get(8)?,
+                })
+            })?;
+            let mut result = Vec::new();
+            for data in rows {
+                result.push(data?);
+            }
+            Ok::<_, rusqlite::Error>(result)
+        })
+        .await
+        .map_err(|e| DbError::Other(e.into()))?;
+    Ok(data_list)
 }

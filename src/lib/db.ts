@@ -23,6 +23,18 @@ export interface Repo {
   drilling: string;
 }
 
+export interface DataList {
+  id?: number;
+  time?: string;
+  depth: number;
+  pitch?: number;
+  roll?: number;
+  heading?: number;
+  repo_id?: number;
+  design_pitch?: number;
+  design_heading?: number;
+}
+
 // 初始化数据库
 export async function initDatabase(dbPath?: string): Promise<DbStatus> {
   return await invoke('init_database', { dbPath });
@@ -73,6 +85,11 @@ export async function deleteUser(id: number): Promise<boolean> {
 // 获取所有仓库
 export async function getAllRepos(): Promise<Repo[]> {
   return await invoke('get_all_repos');
+}
+
+// 根据 repo_id 获取 data_list 数据
+export async function getDataListByRepoId(repoId: number): Promise<DataList[]> {
+  return await invoke('get_data_list_by_repo_id', { repoId });
 }
 
 // 数据库使用示例

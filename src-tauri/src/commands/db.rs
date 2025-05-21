@@ -1,3 +1,4 @@
+use crate::models::data::DataList;
 use crate::models::repo::Repo;
 use crate::models::user::User;
 use crate::services::db::{self, DbError, DbStatus};
@@ -95,4 +96,12 @@ pub async fn get_all_repos() -> Result<Vec<Repo>, String> {
     db::query_all_repos()
         .await
         .map_err(|e| format!("获取repo列表失败: {}", e))
+}
+
+// 根据 repo_id 获取 data_list 数据
+#[tauri::command]
+pub async fn get_data_list_by_repo_id(repo_id: i32) -> Result<Vec<DataList>, String> {
+    db::query_data_list_by_repo_id(repo_id)
+        .await
+        .map_err(|e| format!("获取 data_list 数据失败: {}", e))
 }

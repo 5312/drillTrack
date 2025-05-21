@@ -4,7 +4,9 @@ import { useRef, useEffect } from "react"
 import { useDrillingData } from "../context/drilling-data-context"
 import { Loader2 } from "lucide-react"
 import * as THREE from "three"
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
+// import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
+// 替换原有的 import 语句
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
 
 export function Chart3D() {
   const { drillingData, isLoading } = useDrillingData()
@@ -100,7 +102,7 @@ export function Chart3D() {
         div.textContent = `点${index + 1}: 深度${drillingData[index].depth}m`
         div.style.display = "none" // 初始隐藏
 
-        containerRef.current.appendChild(div)
+        containerRef?.current?.appendChild(div)
 
         // 在渲染循环中更新标签位置
         const updateLabel = () => {
