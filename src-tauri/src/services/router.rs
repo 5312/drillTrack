@@ -1,8 +1,7 @@
 use crate::models::data::DataList;
 use crate::models::repo::Repo;
-
+use crate::services::db;
 use serde::{Deserialize, Serialize};
-
 use warp::http::StatusCode;
 use warp::Filter;
 
@@ -23,13 +22,26 @@ fn data_status_route() -> impl Filter<Extract = impl warp::Reply, Error = warp::
         .and(warp::path("data"))
         .and(warp::path("status"))
         .and(warp::get())
-        .map(|| {
+        .and_then(handle_data_status)
+}
+
+async fn handle_data_status() -> Result<impl warp::Reply, warp::Rejection> {
+    let resp = match db::query_all_repos().await {
+        Ok(repos) => {
+            println!("获取数据成功: {:?}", repos);
             warp::reply::json(&serde_json::json!({
                 "status": "running",
                 "message": "数据服务器正在运行",
-                "data":[]
+                "data": repos
             }))
-        })
+        }
+        Err(e) => warp::reply::json(&serde_json::json!({
+            "status": "error",
+            "message": format!("获取数据失败: {}", e)
+        })),
+    };
+
+    Ok(resp)
 }
 
 fn data_route() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
