@@ -7,9 +7,51 @@ import { DataTable } from "./data-table"
 import { Chart2D } from "./chart-2d"
 import { Chart3D } from "./chart-3d"
 import { useDrillingData } from "../context/drilling-data-context"
+import { useEffect, useState } from "react"
+import { getAllRepos, getDataListByRepoId, Repo, DataList } from "../lib/db"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
+import { Loader2 } from "lucide-react"
 
 export function DataDisplay() {
   const { activeTab } = useDrillingData()
+  const [repos, setRepos] = useState<Repo[]>([])
+  const [selectedRepoId, setSelectedRepoId] = useState<string>("")
+  const [dataList, setDataList] = useState<DataList[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingRepos, setIsLoadingRepos] = useState(false)
+
+  // 获取所有 repo
+  useEffect(() => {
+    const fetchRepos = async () => {
+      setIsLoadingRepos(true)
+      try {
+        const data = await getAllRepos()
+        setRepos(data)
+      } catch (err) {
+        console.error('获取仓库数据失败:', err)
+      } finally {
+        setIsLoadingRepos(false)
+      }
+    }
+    fetchRepos()
+  }, [])
+
+  // 当选择 repo 时获取对应的 dataList
+  useEffect(() => {
+    const fetchDataList = async () => {
+      if (!selectedRepoId) return
+      setIsLoading(true)
+      try {
+        const data = await getDataListByRepoId(parseInt(selectedRepoId))
+        setDataList(data)
+      } catch (err) {
+        console.error('获取数据列表失败:', err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchDataList()
+  }, [selectedRepoId])
 
   return (
     <motion.div
@@ -19,12 +61,33 @@ export function DataDisplay() {
     >
       <Card className="shadow-sm hover:shadow transition-shadow">
         <CardHeader className="pb-3">
+          <div className="flex items-center gap-4">
           <CardTitle>数据显示</CardTitle>
+            <div className="flex items-center gap-2">
+              {isLoadingRepos ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Select value={selectedRepoId} onValueChange={setSelectedRepoId}>
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="选择仓库" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {repos.map((repo) => (
+                      <SelectItem key={repo.id} value={repo.id?.toString() || ""}>
+                        {repo.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+            
+          </div>
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} defaultValue="table">
             <TabsContent value="table" className="mt-0">
-              <DataTable />
+              <DataTable dataList={dataList} isLoading={isLoading} />
             </TabsContent>
 
             <TabsContent value="2d" className="mt-0">

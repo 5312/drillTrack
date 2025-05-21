@@ -1,21 +1,24 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
 import { Skeleton } from "./ui/skeleton"
-import { useDrillingData } from "../context/drilling-data-context"
+import { DataList } from "../lib/db"
 
-export function DataTable() {
-  const { drillingData, isLoading } = useDrillingData()
+interface DataTableProps {
+  dataList: DataList[]
+  isLoading: boolean
+}
 
+export function DataTable({ dataList, isLoading }: DataTableProps) {
   return (
     <Table>
       <TableHeader>
         <TableRow>
           <TableHead className="w-12">序号</TableHead>
           <TableHead>深度</TableHead>
-          <TableHead>倾角</TableHead>
-          <TableHead>地理方位角</TableHead>
-          <TableHead>工具面方向</TableHead>
-          <TableHead>左右位移</TableHead>
-          <TableHead>上下位移</TableHead>
+          <TableHead>俯仰角</TableHead>
+          <TableHead>翻滚角</TableHead>
+          <TableHead>方位角</TableHead>
+          <TableHead>设计俯仰角</TableHead>
+          <TableHead>设计方位角</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -47,15 +50,15 @@ export function DataTable() {
                   </TableCell>
                 </TableRow>
               ))
-          : drillingData.map((row) => (
-              <TableRow key={row.id} className="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                <TableCell>{row.id}</TableCell>
+          : dataList.map((row, index) => (
+              <TableRow key={row.id || index} className="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                <TableCell>{index + 1}</TableCell>
                 <TableCell>{row.depth}</TableCell>
-                <TableCell>{row.inclination}</TableCell>
-                <TableCell>{row.geoOrientation}</TableCell>
-                <TableCell>{row.toolFaceDirection}</TableCell>
-                <TableCell>{row.leftRightDeviation}</TableCell>
-                <TableCell>{row.upDownDeviation}</TableCell>
+                <TableCell>{row.pitch}</TableCell>
+                <TableCell>{row.roll}</TableCell>
+                <TableCell>{row.heading}</TableCell>
+                <TableCell>{row.design_pitch}</TableCell>
+                <TableCell>{row.design_heading}</TableCell>
               </TableRow>
             ))}
       </TableBody>
