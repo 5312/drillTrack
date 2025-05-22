@@ -139,12 +139,12 @@ export function DataTable({ dataList, isLoading, magneticDeclination }: DataTabl
                       <TableCell className="w-16 text-left">{row.depth}</TableCell>
                       <TableCell className="w-24 text-left">{row.pitch}</TableCell>
                       <TableCell className="w-24 text-left">{row.heading}</TableCell>
-                      <TableCell className="w-24 text-left">{calculateLateralDisplacement(row, magneticDeclination)}</TableCell>
-                      <TableCell className="w-24 text-left">{calculateVerticalDisplacement(row)}</TableCell>
+                      <TableCell className="w-24 text-left">{calculateLateralDisplacement(row, magneticDeclination).toFixed(5)}</TableCell>
+                      <TableCell className="w-24 text-left">{calculateVerticalDisplacement(row).toFixed(5)}</TableCell>
                       <TableCell className="w-24 text-left">0</TableCell>
-                      <TableCell className="w-24 text-left">{calculateDesignVerticalDisplacement(row)}</TableCell>
-                      <TableCell className="w-24 text-left">{cadCoords.x },{cadCoords.y }</TableCell>
-                      <TableCell className="w-24 text-left">{profileCoords.x },{profileCoords.y }</TableCell>
+                      <TableCell className="w-24 text-left">{calculateDesignVerticalDisplacement(row).toFixed(5)}</TableCell>
+                      <TableCell className="w-24 text-left">{cadCoords.x.toFixed(5) },{cadCoords.y.toFixed(5) }</TableCell>
+                      <TableCell className="w-24 text-left">{profileCoords.x.toFixed(5) },{profileCoords.y.toFixed(5) }</TableCell>
                     </TableRow>
                   )
                 })}
