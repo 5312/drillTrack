@@ -23,6 +23,8 @@ export function DataDisplay() {
   const [isLoadingRepos, setIsLoadingRepos] = useState(false)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [showMagneticDialog, setShowMagneticDialog] = useState(false)
+  const [selectedMagneticDeclination, setSelectedMagneticDeclination] = useState("-4.44") // 默认选中第一个值
+  const [selectedMagneticId, setSelectedMagneticId] = useState("1") // 默认选中第一个序号
 
   // 获取所有 repo
   useEffect(() => {
@@ -97,14 +99,19 @@ export function DataDisplay() {
                   </SelectContent>
                 </Select>
               )}
-              <Button
-                variant="outline"
-                className="gap-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-                onClick={() => setShowMagneticDialog(true)}
-              >
-                <Compass className="h-4 w-4" />
-                <span>地磁偏角</span>
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  className="gap-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                  onClick={() => setShowMagneticDialog(true)}
+                >
+                  <Compass className="h-4 w-4" />
+                  <span>地磁偏角</span>
+                  <span className="text-sm text-muted-foreground">
+                    当前值: {selectedMagneticDeclination}°
+                  </span>
+                </Button>
+              </div>
               <Button
                 variant="outline"
                 className="gap-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
@@ -137,6 +144,10 @@ export function DataDisplay() {
       <MagneticDeclinationDialog
         open={showMagneticDialog}
         onOpenChange={setShowMagneticDialog}
+        selectedValue={selectedMagneticDeclination}
+        onSelect={setSelectedMagneticDeclination}
+        selectedId={selectedMagneticId}
+        onSelectId={setSelectedMagneticId}
       />
     </motion.div>
   )
