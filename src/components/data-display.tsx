@@ -15,7 +15,7 @@ import { Button } from "./ui/button"
 import { MagneticDeclinationDialog } from "./magnetic-declination-dialog"
 
 export function DataDisplay() {
-  const { activeTab } = useDrillingData()
+  const { activeTab ,setDrillingData} = useDrillingData()
   const [repos, setRepos] = useState<Repo[]>([])
   const [selectedRepoId, setSelectedRepoId] = useState<string>("")
   const [dataList, setDataList] = useState<DataList[]>([])
@@ -50,6 +50,7 @@ export function DataDisplay() {
       try {
         const data = await getDataListByRepoId(parseInt(selectedRepoId))
         setDataList(data)
+        setDrillingData(data);
       } catch (err) {
         console.error('获取数据列表失败:', err)
       } finally {
@@ -65,6 +66,7 @@ export function DataDisplay() {
     try {
       const data = await getDataListByRepoId(parseInt(selectedRepoId))
       setDataList(data)
+      setDrillingData(data);
     } catch (err) {
       console.error('重新获取数据失败:', err)
     } finally {
@@ -136,7 +138,6 @@ export function DataDisplay() {
 
             <TabsContent value="2d" className="mt-0">
               <Chart2D 
-                dataList={dataList}
                 isLoading={isLoading || isRefreshing}
                 magneticDeclination={selectedMagneticDeclination}
               />

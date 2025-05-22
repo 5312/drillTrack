@@ -1,17 +1,18 @@
-import { DataList } from "../lib/db"
 import { Loader2 } from "lucide-react"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts"
 import { calculateLateralDisplacement, calculateVerticalDisplacement } from "../lib/calculations"
+import { useDrillingData } from "../context/drilling-data-context"
 
 interface Chart2DProps {
-  dataList: DataList[]
   isLoading: boolean
   magneticDeclination: string
 }
 
-export function Chart2D({ dataList, isLoading, magneticDeclination }: Chart2DProps) {
+export function Chart2D({  isLoading, magneticDeclination }: Chart2DProps) {
+  const {  drillingData} = useDrillingData()
+
   // 转换数据为图表格式
-  const chartData = dataList.map((point) => ({
+  const chartData = drillingData.map((point) => ({
     depth: point.depth,
     leftRightDeviation: calculateLateralDisplacement(point, magneticDeclination),
     upDownDeviation: calculateVerticalDisplacement(point),
@@ -26,9 +27,9 @@ export function Chart2D({ dataList, isLoading, magneticDeclination }: Chart2DPro
   }
 
   return (
-    <div className="h-[800px] w-full flex flex-col gap-4">
+    <div className="h-[60vh] w-full flex flex-col gap-4">
       {/* 左右偏差图表 */}
-      <div className="h-[400px] w-full">
+      <div className="h-[50%] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={chartData}
@@ -40,8 +41,8 @@ export function Chart2D({ dataList, isLoading, magneticDeclination }: Chart2DPro
             }}
           >
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="depth" label={{ value: "钻杆长度 (m)", position: "insideBottomRight", offset: -5 }} />
-            <YAxis label={{ value: "左右位移 (m)", angle: -90, position: "insideLeft" }} />
+            <XAxis dataKey="depth" label={{ value: "深 (m)", position: "insideBottomRight", offset: -5 }} />
+            <YAxis label={{  value: "左右位移 (m)",  angle: -90, position: "insideLeft" }} />
             <Tooltip formatter={(value: number) => [`${value.toFixed(5)}m`, ""]} labelFormatter={(label) => `深度: ${label}m`} />
             <Legend />
             <Line
@@ -57,7 +58,7 @@ export function Chart2D({ dataList, isLoading, magneticDeclination }: Chart2DPro
       </div>
 
       {/* 上下偏差图表 */}
-      <div className="h-[400px] w-full">
+      <div className="h-[50%] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={chartData}
@@ -69,8 +70,8 @@ export function Chart2D({ dataList, isLoading, magneticDeclination }: Chart2DPro
             }}
           >
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="depth" label={{ value: "钻杆长度 (m)", position: "insideBottomRight", offset: -5 }} />
-            <YAxis label={{ value: "上下位移 (m)", angle: -90, position: "insideLeft" }} />
+            <XAxis dataKey="depth" label={{ value: "深 (m)", position: "insideBottomRight", offset: -5 }} />
+            <YAxis label={{   value: "上下位移 (m)", angle: -90, position: "insideLeft" }} />
             <Tooltip formatter={(value: number) => [`${value.toFixed(5)}m`, ""]} labelFormatter={(label) => `深度: ${label}m`} />
             <Legend />
             <Line
