@@ -2,18 +2,12 @@
 
 import { motion } from "framer-motion"
 import { Tabs, TabsList, TabsTrigger } from "./ui/tabs"
-import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
-import { Grid, BarChart2, CuboidIcon as Cube, RotateCcw, Compass, Loader2 } from "lucide-react"
+import { Grid, BarChart2, CuboidIcon as Cube } from "lucide-react"
 import { useDrillingData } from "../context/drilling-data-context"
 
-interface ControlPanelProps {
-  isProcessing: boolean
-  onProcess: () => void
-}
-
-export function ControlPanel({ isProcessing, onProcess }: ControlPanelProps) {
+export function ControlPanel() {
   const {
     setIsLoading,
     openingAngle,
@@ -72,8 +66,6 @@ export function ControlPanel({ isProcessing, onProcess }: ControlPanelProps) {
               </Tabs>
             </div>
 
-       
-
             <div className="flex items-center gap-2">
               <label htmlFor="opening-angle" className="text-sm whitespace-nowrap">
                 开孔角度
@@ -97,21 +89,6 @@ export function ControlPanel({ isProcessing, onProcess }: ControlPanelProps) {
                 className="w-24 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all"
               />
             </div>
-
-            <Button variant="outline" className="gap-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
-              <Compass className="h-4 w-4" />
-              <span>地磁偏角</span>
-            </Button>
-
-            <Button
-              variant="outline"
-              className="gap-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-              onClick={onProcess}
-              disabled={isProcessing}
-            >
-              {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RotateCcw className="h-4 w-4" />}
-              <span>重新计算</span>
-            </Button>
           </div>
         </CardContent>
       </Card>

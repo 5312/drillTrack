@@ -75,7 +75,7 @@ function App() {
       default:
         return (
           <>
-            <ControlPanel isProcessing={isProcessing} onProcess={handleProcess} />
+            <ControlPanel />
             <DataDisplay />
           </>
         );

@@ -10,7 +10,9 @@ import { useDrillingData } from "../context/drilling-data-context"
 import { useEffect, useState } from "react"
 import { getAllRepos, getDataListByRepoId, Repo, DataList } from "../lib/db"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
-import { Loader2 } from "lucide-react"
+import { Loader2, RefreshCw, Compass } from "lucide-react"
+import { Button } from "./ui/button"
+import { MagneticDeclinationDialog } from "./magnetic-declination-dialog"
 
 export function DataDisplay() {
   const { activeTab } = useDrillingData()
@@ -19,6 +21,8 @@ export function DataDisplay() {
   const [dataList, setDataList] = useState<DataList[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isLoadingRepos, setIsLoadingRepos] = useState(false)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [showMagneticDialog, setShowMagneticDialog] = useState(false)
 
   // 获取所有 repo
   useEffect(() => {
@@ -53,6 +57,19 @@ export function DataDisplay() {
     fetchDataList()
   }, [selectedRepoId])
 
+  const handleRefresh = async () => {
+    if (!selectedRepoId) return
+    setIsRefreshing(true)
+    try {
+      const data = await getDataListByRepoId(parseInt(selectedRepoId))
+      setDataList(data)
+    } catch (err) {
+      console.error('重新获取数据失败:', err)
+    } finally {
+      setIsRefreshing(false)
+    }
+  }
+
   return (
     <motion.div
       initial={{ y: 20, opacity: 0 }}
@@ -62,7 +79,7 @@ export function DataDisplay() {
       <Card className="shadow-sm hover:shadow transition-shadow">
         <CardHeader className="pb-3">
           <div className="flex items-center gap-4">
-          <CardTitle>数据显示</CardTitle>
+            <CardTitle>数据显示</CardTitle>
             <div className="flex items-center gap-2">
               {isLoadingRepos ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -80,14 +97,30 @@ export function DataDisplay() {
                   </SelectContent>
                 </Select>
               )}
+              <Button
+                variant="outline"
+                className="gap-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                onClick={() => setShowMagneticDialog(true)}
+              >
+                <Compass className="h-4 w-4" />
+                <span>地磁偏角</span>
+              </Button>
+              <Button
+                variant="outline"
+                className="gap-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                onClick={handleRefresh}
+                disabled={!selectedRepoId || isRefreshing}
+              >
+                {isRefreshing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+                <span>重新计算</span>
+              </Button>
             </div>
-            
           </div>
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} defaultValue="table">
             <TabsContent value="table" className="mt-0">
-              <DataTable dataList={dataList} isLoading={isLoading} />
+              <DataTable dataList={dataList} isLoading={isLoading || isRefreshing} />
             </TabsContent>
 
             <TabsContent value="2d" className="mt-0">
@@ -100,7 +133,13 @@ export function DataDisplay() {
           </Tabs>
         </CardContent>
       </Card>
+
+      <MagneticDeclinationDialog
+        open={showMagneticDialog}
+        onOpenChange={setShowMagneticDialog}
+      />
     </motion.div>
   )
 }
+
 
