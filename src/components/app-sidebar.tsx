@@ -113,7 +113,7 @@ export function AppSidebar({ isProcessing, onProcess, onNavigate, currentPage }:
         </div>
         <Button
           variant="outline"
-          className="w-full justify-start gap-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
+          className="hidden w-full justify-start gap-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
           onClick={onProcess}
           disabled={isProcessing}
         >
@@ -122,7 +122,7 @@ export function AppSidebar({ isProcessing, onProcess, onNavigate, currentPage }:
         </Button>
         <Button
           variant="outline"
-          className="w-full justify-start gap-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
+          className="hidden w-full justify-start gap-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
           onClick={handleOpenFile}
         >
           <FolderOpen className="h-4 w-4" />
@@ -130,7 +130,7 @@ export function AppSidebar({ isProcessing, onProcess, onNavigate, currentPage }:
         </Button>
         <Button
           variant="outline"
-          className="w-full justify-start gap-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
+          className="hidden w-full justify-start gap-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
           onClick={handleSaveFile}
         >
           <FileSpreadsheet className="h-4 w-4" />

@@ -35,7 +35,7 @@ export function AppHeader() {
     >
       <div className="flex h-16 items-center justify-between px-6" data-tauri-drag-region>
         <h1 className="text-xl font-semibold" data-tauri-drag-region>
-          钻孔机迹仪数据处理系统
+          钻孔轨迹仪数据处理系统
         </h1>
 
         <div className="flex items-center gap-4">
