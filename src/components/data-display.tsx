@@ -135,7 +135,11 @@ export function DataDisplay() {
             </TabsContent>
 
             <TabsContent value="2d" className="mt-0">
-              <Chart2D />
+              <Chart2D 
+                dataList={dataList}
+                isLoading={isLoading || isRefreshing}
+                magneticDeclination={selectedMagneticDeclination}
+              />
             </TabsContent>
 
             <TabsContent value="3d" className="mt-0">
