@@ -1,5 +1,5 @@
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
-import { Skeleton } from "./ui/skeleton"
+import { Table } from "antd"
+import type { ColumnsType } from "antd/es/table"
 import { DataList } from "../lib/db"
 
 interface DataTableProps {
@@ -74,83 +74,87 @@ function calculateCADProfileCoordinates(row: DataList): { x: number, y: number }
 }
 
 export function DataTable({ dataList, isLoading, magneticDeclination }: DataTableProps) {
+  const columns: ColumnsType<DataList> = [
+    {
+      title: "序号",
+      dataIndex: "index",
+      key: "index",
+      width: 80,
+      render: (_, __, index) => index + 1,
+    },
+    {
+      title: "深度",
+      dataIndex: "depth",
+      key: "depth",
+      width: 80,
+    },
+    {
+      title: "俯仰角",
+      dataIndex: "pitch",
+      key: "pitch",
+      width: 100,
+    },
+    {
+      title: "方位角",
+      dataIndex: "heading",
+      key: "heading",
+      width: 100,
+    },
+    {
+      title: "左右位移",
+      key: "lateralDisplacement",
+      width: 100,
+      render: (_, record) => calculateLateralDisplacement(record, magneticDeclination).toFixed(5),
+    },
+    {
+      title: "上下位移",
+      key: "verticalDisplacement",
+      width: 100,
+      render: (_, record) => calculateVerticalDisplacement(record).toFixed(5),
+    },
+    {
+      title: "左右位移(设计)",
+      key: "designLateralDisplacement",
+      width: 100,
+      render: () => "0",
+    },
+    {
+      title: "上下位移(设计)",
+      key: "designVerticalDisplacement",
+      width: 100,
+      render: (_, record) => calculateDesignVerticalDisplacement(record).toFixed(5),
+    },
+    {
+      title: "CAD平面坐标",
+      key: "cadCoordinates",
+      width: 100,
+      render: (_, record) => {
+        const coords = calculateCADCoordinates(record, magneticDeclination)
+        return `${coords.x.toFixed(5)},${coords.y.toFixed(5)}`
+      },
+    },
+    {
+      title: "CAD剖面坐标",
+      key: "profileCoordinates",
+      width: 100,
+      render: (_, record) => {
+        const coords = calculateCADProfileCoordinates(record)
+        return `${coords.x.toFixed(5)},${coords.y.toFixed(5)}`
+      },
+    },
+  ]
+
   return (
     <div className="relative">
-      <div className="max-h-[500px] overflow-auto">
-        <Table>
-          <TableHeader className="bg-white dark:bg-slate-950 sticky top-0 z-10">
-            <TableRow>
-              <TableHead className="w-16 text-left">序号</TableHead>
-              <TableHead className="w-16 text-left">深度</TableHead>
-              <TableHead className="w-24 text-left">俯仰角</TableHead>
-              <TableHead className="w-24 text-left">方位角</TableHead>
-              <TableHead className="w-24 text-left">左右位移</TableHead>
-              <TableHead className="w-24 text-left">上下位移</TableHead>
-              <TableHead className="w-24 text-left">左右位移(设计)</TableHead>
-              <TableHead className="w-24 text-left">上下位移(设计)</TableHead>
-              <TableHead className="w-24 text-left">CAD平面坐标</TableHead>
-              <TableHead className="w-24 text-left">CAD剖面坐标</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading
-              ? Array(3)
-                  .fill(0)
-                  .map((_, index) => (
-                    <TableRow key={index}>
-                      <TableCell className="w-16 text-left">
-                        <Skeleton className="h-5 w-5" />
-                      </TableCell>
-                      <TableCell className="w-16 text-left">
-                        <Skeleton className="h-5 w-full" />
-                      </TableCell>
-                      <TableCell className="w-24 text-left">
-                        <Skeleton className="h-5 w-full" />
-                      </TableCell>
-                      <TableCell className="w-24 text-left">
-                        <Skeleton className="h-5 w-full" />
-                      </TableCell>
-                      <TableCell className="w-24 text-left">
-                        <Skeleton className="h-5 w-full" />
-                      </TableCell>
-                      <TableCell className="w-24 text-left">
-                        <Skeleton className="h-5 w-full" />
-                      </TableCell>
-                      <TableCell className="w-24 text-left">
-                        <Skeleton className="h-5 w-full" />
-                      </TableCell>
-                      <TableCell className="w-24 text-left">
-                        <Skeleton className="h-5 w-full" />
-                      </TableCell>
-                      <TableCell className="w-24 text-left">
-                        <Skeleton className="h-5 w-full" />
-                      </TableCell>
-                      <TableCell className="w-24 text-left">
-                        <Skeleton className="h-5 w-full" />
-                      </TableCell>
-                    </TableRow>
-                  ))
-              : dataList.map((row, index) => {
-                  const cadCoords = calculateCADCoordinates(row, magneticDeclination)
-                  const profileCoords = calculateCADProfileCoordinates(row)
-                  return (
-                    <TableRow key={row.id || index} className="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                      <TableCell className="w-16 text-left">{index + 1}</TableCell>
-                      <TableCell className="w-16 text-left">{row.depth}</TableCell>
-                      <TableCell className="w-24 text-left">{row.pitch}</TableCell>
-                      <TableCell className="w-24 text-left">{row.heading}</TableCell>
-                      <TableCell className="w-24 text-left">{calculateLateralDisplacement(row, magneticDeclination).toFixed(5)}</TableCell>
-                      <TableCell className="w-24 text-left">{calculateVerticalDisplacement(row).toFixed(5)}</TableCell>
-                      <TableCell className="w-24 text-left">0</TableCell>
-                      <TableCell className="w-24 text-left">{calculateDesignVerticalDisplacement(row).toFixed(5)}</TableCell>
-                      <TableCell className="w-24 text-left">{cadCoords.x.toFixed(5) },{cadCoords.y.toFixed(5) }</TableCell>
-                      <TableCell className="w-24 text-left">{profileCoords.x.toFixed(5) },{profileCoords.y.toFixed(5) }</TableCell>
-                    </TableRow>
-                  )
-                })}
-          </TableBody>
-        </Table>
-      </div>
+        <Table
+          columns={columns}
+          dataSource={dataList}
+          loading={isLoading}
+          rowKey={(record) => record.id || record.depth}
+          pagination={false}
+          scroll={{ y: 500 }}
+          size="small"
+        />
     </div>
   )
 }
