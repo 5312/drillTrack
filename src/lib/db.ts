@@ -24,15 +24,16 @@ export interface Repo {
 }
 
 export interface DataList {
-  id?: number;
-  time?: string;
+  id: number;
+  time: string;
+  // 钻杆长度
   depth: number;
-  pitch?: number;
+  pitch: number;
   roll?: number;
-  heading?: number;
-  repo_id?: number;
-  design_pitch?: number;
-  design_heading?: number;
+  heading: number;
+  repo_id: number;
+  design_pitch: number;
+  design_heading: number;
 }
 
 // 初始化数据库
