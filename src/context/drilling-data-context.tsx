@@ -41,12 +41,12 @@ export function DrillingDataProvider({ children }: { children: ReactNode }) {
   const [drillingData, setDrillingData] = useState<DrillingPoint[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [firstHoleAsReference, setFirstHoleAsReference] = useState(true)
-  const [openingAngle, setOpeningAngle] = useState("0.0")
+  const [openingAngle, setOpeningAngle] = useState("1.0")
   const [geoOrientation, setGeoOrientation] = useState("0.0")
   const [activeTab, setActiveTab] = useState("table")
 
   // 从文件加载数据
-  const loadDataFromFile = async (filePath: string) => {
+  const loadDataFromFile = async (_filePath: string) => {
     try {
       setIsLoading(true)
       // 在实际应用中，这里会调用 Tauri 的 Rust 函数来读取文件

@@ -80,6 +80,7 @@ export function DataTable({ dataList, isLoading, magneticDeclination }: DataTabl
       dataIndex: "index",
       key: "index",
       width: 80,
+      fixed: "left",
       render: (_, __, index) => index + 1,
     },
     {
@@ -143,18 +144,17 @@ export function DataTable({ dataList, isLoading, magneticDeclination }: DataTabl
       },
     },
   ]
-
   return (
-    <div className="relative">
-        <Table
-          columns={columns}
-          dataSource={dataList}
-          loading={isLoading}
-          rowKey={(record) => record.id || record.depth}
-          pagination={false}
-          scroll={{ y: 500 }}
-          size="small"
-        />
+    <div className="relative w-[80vw]">
+      <Table
+        columns={columns}
+        dataSource={dataList}
+        loading={isLoading}
+        rowKey={(record) => record.id || record.depth}
+        pagination={false}
+        size="small"
+        scroll={{ x:'calc(700px + 50%)', y: '60vh'  }}
+      />
     </div>
   )
 }
