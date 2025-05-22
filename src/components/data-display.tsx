@@ -127,7 +127,11 @@ export function DataDisplay() {
         <CardContent>
           <Tabs value={activeTab} defaultValue="table">
             <TabsContent value="table" className="mt-0">
-              <DataTable dataList={dataList} isLoading={isLoading || isRefreshing} />
+              <DataTable 
+                dataList={dataList} 
+                isLoading={isLoading || isRefreshing} 
+                magneticDeclination={selectedMagneticDeclination}
+              />
             </TabsContent>
 
             <TabsContent value="2d" className="mt-0">

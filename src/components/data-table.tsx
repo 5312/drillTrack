@@ -5,15 +5,21 @@ import { DataList } from "../lib/db"
 interface DataTableProps {
   dataList: DataList[]
   isLoading: boolean
+  magneticDeclination: string // 添加磁偏角属性
 }
 
 // 计算左右位移
-function calculateLateralDisplacement(row: DataList): number {
+function calculateLateralDisplacement(row: DataList, magneticDeclination: string): number {
   const rodLength = row.depth // 钻杆长度，单位：米
-  
   const pitchRad = (row.pitch * Math.PI) / 180 // 将俯仰角转换为弧度
-  const headingDiffRad = ((row.heading - row.design_heading) * Math.PI) / 180 // 将方位差转换为弧度
-  // X左右偏移 =L ⋅ cos(I) ⋅ sin(A real − A design )
+  
+  // 计算设计方位角（磁方位角 + 磁偏角）
+  const designHeading = (row.design_heading || 0) + Number(magneticDeclination)
+  
+  // 计算方位差（实际方位角 - 设计方位角）
+  const headingDiffRad = ((row.heading || 0) - designHeading) * Math.PI / 180
+  
+  // X左右偏移 = L ⋅ cos(I) ⋅ sin(A real − A design )
   return rodLength * Math.cos(pitchRad) * Math.sin(headingDiffRad)
 }
 
@@ -33,67 +39,71 @@ function calculateDesignVerticalDisplacement(row: DataList): number {
   return rodLength * Math.sin(designPitchRad)
 }
 
-export function DataTable({ dataList, isLoading }: DataTableProps) {
+export function DataTable({ dataList, isLoading, magneticDeclination }: DataTableProps) {
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-16">序号</TableHead>
-          <TableHead className="w-16">深度</TableHead>
-          <TableHead>俯仰角</TableHead>
-          <TableHead>方位角</TableHead>
-          <TableHead>左右位移</TableHead>
-          <TableHead>上下位移</TableHead>
-          <TableHead>左右位移(设计)</TableHead>
-          <TableHead>上下位移(设计)</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {isLoading
-          ? Array(3)
-              .fill(0)
-              .map((_, index) => (
-                <TableRow key={index}>
-                  <TableCell>
-                    <Skeleton className="h-5 w-5" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-5 w-full" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-5 w-full" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-5 w-full" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-5 w-full" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-5 w-full" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-5 w-full" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-5 w-full" />
-                  </TableCell>
-                </TableRow>
-              ))
-          : dataList.map((row, index) => (
-              <TableRow key={row.id || index} className="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>{row.depth}</TableCell>
-                <TableCell>{row.pitch}</TableCell>
-                <TableCell>{row.heading}</TableCell>
-                <TableCell>{calculateLateralDisplacement(row)}</TableCell>
-                <TableCell>{calculateVerticalDisplacement(row)}</TableCell>
-                <TableCell>0</TableCell>
-                <TableCell>{calculateDesignVerticalDisplacement(row)}</TableCell>
-              </TableRow>
-            ))}
-      </TableBody>
-    </Table>
+    <div className="relative">
+      <div className="max-h-[500px] overflow-auto">
+        <Table>
+          <TableHeader className="bg-white dark:bg-slate-950 sticky top-0 z-10">
+            <TableRow>
+              <TableHead className="w-16 text-left">序号</TableHead>
+              <TableHead className="w-16 text-left">深度</TableHead>
+              <TableHead className="w-24 text-left">俯仰角</TableHead>
+              <TableHead className="w-24 text-left">方位角</TableHead>
+              <TableHead className="w-24 text-left">左右位移</TableHead>
+              <TableHead className="w-24 text-left">上下位移</TableHead>
+              <TableHead className="w-24 text-left">左右位移(设计)</TableHead>
+              <TableHead className="w-24 text-left">上下位移(设计)</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading
+              ? Array(3)
+                  .fill(0)
+                  .map((_, index) => (
+                    <TableRow key={index}>
+                      <TableCell className="w-16 text-left">
+                        <Skeleton className="h-5 w-5" />
+                      </TableCell>
+                      <TableCell className="w-16 text-left">
+                        <Skeleton className="h-5 w-full" />
+                      </TableCell>
+                      <TableCell className="w-24 text-left">
+                        <Skeleton className="h-5 w-full" />
+                      </TableCell>
+                      <TableCell className="w-24 text-left">
+                        <Skeleton className="h-5 w-full" />
+                      </TableCell>
+                      <TableCell className="w-24 text-left">
+                        <Skeleton className="h-5 w-full" />
+                      </TableCell>
+                      <TableCell className="w-24 text-left">
+                        <Skeleton className="h-5 w-full" />
+                      </TableCell>
+                      <TableCell className="w-24 text-left">
+                        <Skeleton className="h-5 w-full" />
+                      </TableCell>
+                      <TableCell className="w-24 text-left">
+                        <Skeleton className="h-5 w-full" />
+                      </TableCell>
+                    </TableRow>
+                  ))
+              : dataList.map((row, index) => (
+                  <TableRow key={row.id || index} className="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                    <TableCell className="w-16 text-left">{index + 1}</TableCell>
+                    <TableCell className="w-16 text-left">{row.depth}</TableCell>
+                    <TableCell className="w-24 text-left">{row.pitch}</TableCell>
+                    <TableCell className="w-24 text-left">{row.heading}</TableCell>
+                    <TableCell className="w-24 text-left">{calculateLateralDisplacement(row, magneticDeclination)}</TableCell>
+                    <TableCell className="w-24 text-left">{calculateVerticalDisplacement(row)}</TableCell>
+                    <TableCell className="w-24 text-left">0</TableCell>
+                    <TableCell className="w-24 text-left">{calculateDesignVerticalDisplacement(row)}</TableCell>
+                  </TableRow>
+                ))}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
   )
 }
 
