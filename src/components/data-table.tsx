@@ -1,76 +1,18 @@
 import { Table } from "antd"
 import type { ColumnsType } from "antd/es/table"
 import { DataList } from "../lib/db"
+import {
+  calculateLateralDisplacement,
+  calculateVerticalDisplacement,
+  calculateDesignVerticalDisplacement,
+  calculateCADCoordinates,
+  calculateCADProfileCoordinates
+} from "../lib/calculations"
 
 interface DataTableProps {
   dataList: DataList[]
   isLoading: boolean
   magneticDeclination: string // 添加磁偏角属性
-}
-
-// 计算左右位移
-function calculateLateralDisplacement(row: DataList, magneticDeclination: string): number {
-  const rodLength = row.depth // 钻杆长度，单位：米
-  const pitchRad = (row.pitch * Math.PI) / 180 // 将俯仰角转换为弧度
-  
-  // 计算设计方位角（磁方位角 + 磁偏角）
-  const designHeading = (row.design_heading || 0) + Number(magneticDeclination)
-  
-  // 计算方位差（实际方位角 - 设计方位角）
-  const headingDiffRad = ((row.heading || 0) - designHeading) * Math.PI / 180
-  
-  // X左右偏移 = L ⋅ cos(I) ⋅ sin(A real − A design )
-  return rodLength * Math.cos(pitchRad) * Math.sin(headingDiffRad)
-}
-
-// 计算上下位移
-function calculateVerticalDisplacement(row: DataList): number {
-  const rodLength =  row.depth // 钻杆长度，单位：米
-  const pitchRad = (row.pitch * Math.PI) / 180 // 将俯仰角转换为弧度
-  // 上下位移 = L ⋅ sin(I)
-  return rodLength * Math.sin(pitchRad)
-}
-
-// 计算设计上下位移
-function calculateDesignVerticalDisplacement(row: DataList): number {
-  const rodLength = row.depth // 钻杆长度，单位：米
-  const designPitchRad = (row.design_pitch * Math.PI) / 180 // 将设计俯仰角转换为弧度
-  // 设计上下位移 = L ⋅ sin(I设计)
-  return rodLength * Math.sin(designPitchRad)
-}
-
-// 计算CAD平面坐标
-function calculateCADCoordinates(row: DataList, _magneticDeclination: string): { x: number, y: number } {
-  const rodLength = row.depth // 钻杆长度，单位：米
-  const pitchRad = (row.pitch * Math.PI) / 180 // 将俯仰角转换为弧度
-  
-  // 计算设计方位角（磁方位角 + 磁偏角）
-  // const designHeading = (row.design_heading || 0) + Number(magneticDeclination)
-  
-  // 计算方位差（90 - 实际方位角）
-  const headingDiffRad = (90 - (row.heading || 0)) * Math.PI / 180
-  
-  // X坐标 = L ⋅ cos(I) ⋅ cos(A)
-  const x = rodLength * Math.cos(pitchRad) * Math.cos(headingDiffRad)
-  
-  // Y坐标 = L ⋅ cos(I) ⋅ sin(A)
-  const y = rodLength * Math.cos(pitchRad) * Math.sin(headingDiffRad)
-  
-  return { x, y }
-}
-
-// 计算CAD剖面坐标
-function calculateCADProfileCoordinates(row: DataList): { x: number, y: number } {
-  const rodLength = row.depth // 钻杆长度，单位：米
-  const pitchRad = (row.pitch * Math.PI) / 180 // 将俯仰角转换为弧度
-  
-  // X坐标 = L ⋅ cos(I)
-  const x = rodLength * Math.cos(pitchRad)
-  
-  // Y坐标 = L ⋅ sin(I)
-  const y = rodLength * Math.sin(pitchRad)
-  
-  return { x, y }
 }
 
 export function DataTable({ dataList, isLoading, magneticDeclination }: DataTableProps) {
