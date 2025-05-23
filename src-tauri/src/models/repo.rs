@@ -50,7 +50,7 @@ impl Repo {
         .await
         .map_err(|e| DbError::Other(e.into()))
     }
-
+    #[allow(dead_code)]
     pub async fn delete_repo_by_id(id: i32) -> Result<bool, DbError> {
         let conn_guard = get_conn().await?;
         let conn = conn_guard.as_ref().unwrap();
@@ -62,7 +62,7 @@ impl Repo {
         .await
         .map_err(|e| DbError::Other(e.into()))
     }
-
+    #[allow(dead_code)]
     pub async fn update_repo(repo: Repo) -> Result<bool, DbError> {
         let conn_guard = get_conn().await?;
         let conn = conn_guard.as_ref().unwrap();
@@ -97,7 +97,7 @@ impl Repo {
             ))
         }
     }
-
+    #[allow(dead_code)]
     pub async fn query_repo_by_id(id: i32) -> Result<Option<Repo>, DbError> {
         let conn_guard = get_conn().await?;
         let conn = conn_guard.as_ref().unwrap();

@@ -11,9 +11,8 @@ mod models;
 mod services;
 
 use commands::db::{
-    close_database, delete_user, execute_query, get_all_repos, get_all_users,
-    get_data_list_by_repo_id, get_db_status, get_user_by_id, init_database, save_user,
-    search_users,
+    close_database, delete_user, get_all_repos, get_all_users, get_data_list_by_repo_id,
+    get_db_status, get_user_by_id, init_database, save_user, search_users,
 };
 use commands::license::{
     activate_license, check_activation, export_machine_id, get_license_info_command,
@@ -61,7 +60,6 @@ fn main() {
             init_database,
             get_db_status,
             close_database,
-            execute_query,
             get_all_users,
             get_user_by_id,
             search_users,

@@ -1,9 +1,7 @@
 use crate::models::data::DataList;
 use crate::models::repo::Repo;
 use crate::models::user::User;
-use crate::services::db::{self, DbError, DbStatus};
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
+use crate::services::db::{self, DbStatus};
 
 // 初始化数据库
 #[tauri::command]
@@ -36,18 +34,6 @@ pub async fn close_database() -> Result<(), String> {
     db::close_db()
         .await
         .map_err(|e| format!("关闭数据库失败: {}", e))
-}
-
-// 执行自定义查询
-#[tauri::command]
-pub async fn execute_query(sql: String, params: Vec<Value>) -> Result<Vec<Value>, String> {
-    // 目前参数被忽略，因为简化了实现
-    // 在实际应用中，您需要将params传递给查询
-    let result = db::execute_custom_query(&sql)
-        .await
-        .map_err(|e| format!("查询执行失败: {}", e))?;
-
-    Ok(result)
 }
 
 // 获取所有用户
