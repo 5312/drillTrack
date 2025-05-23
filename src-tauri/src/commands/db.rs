@@ -1,4 +1,5 @@
 use crate::models::data::DataList;
+use crate::models::excel::ExcelData;
 use crate::models::repo::Repo;
 use crate::models::user::User;
 use crate::services::db::{self, DbStatus};
@@ -90,4 +91,18 @@ pub async fn get_data_list_by_repo_id(repo_id: i32) -> Result<Vec<DataList>, Str
     db::query_data_list_by_repo_id(repo_id)
         .await
         .map_err(|e| format!("获取 data_list 数据失败: {}", e))
+}
+
+#[tauri::command]
+pub async fn save_data_to_excel(
+    file_path: String,
+    data: Vec<DataList>,
+    magnetic_declination: String,
+) -> Result<(), String> {
+    let excel_data = ExcelData {
+        file_path,
+        data,
+        magnetic_declination,
+    };
+    excel_data.save_to_excel().await
 }

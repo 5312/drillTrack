@@ -1,8 +1,7 @@
 import { createContext, useContext, useState,  type ReactNode } from "react"
 import { DataList } from "@/lib/db"
- 
-import { Repo,   } from "../lib/db"
- 
+import { invoke } from '@tauri-apps/api/core'
+import { Repo } from "../lib/db"
 
 // 定义上下文类型
 interface DrillingDataContextType {
@@ -26,6 +25,8 @@ interface DrillingDataContextType {
   setSelectedRepoId: (value: string) => void
   isLoadingRepos: boolean
   setIsLoadingRepos: (value: boolean) => void
+  selectedMagneticDeclination: string
+  setSelectedMagneticDeclination: (value: string) => void
 }
 
 // 创建上下文
@@ -42,6 +43,7 @@ export function DrillingDataProvider({ children }: { children: ReactNode }) {
   const [repos, setRepos] = useState<Repo[]>([])
   const [selectedRepoId, setSelectedRepoId] = useState<string>("")
   const [isLoadingRepos, setIsLoadingRepos] = useState(false)
+  const [selectedMagneticDeclination, setSelectedMagneticDeclination] = useState("0.0")
 
   // 从文件加载数据
   const loadDataFromFile = async (_filePath: string) => {
@@ -61,14 +63,19 @@ export function DrillingDataProvider({ children }: { children: ReactNode }) {
   // 保存数据到文件
   const saveDataToFile = async (filePath: string) => {
     try {
-      // 在实际应用中，这里会调用 Tauri 的 Rust 函数来保存文件
-      // await invoke("save_data_to_file", { filePath, data: drillingData })
-      // 模拟保存文件
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      setIsLoading(true)
+      // 调用 Tauri 的 Rust 函数来保存文件
+      await invoke("save_data_to_excel", { 
+        filePath, 
+        data: drillingData,
+        magneticDeclination: selectedMagneticDeclination 
+      })
       console.log("数据已保存到:", filePath)
+      setIsLoading(false)
       return Promise.resolve()
     } catch (error) {
       console.error("保存数据失败:", error)
+      setIsLoading(false)
       return Promise.reject(error)
     }
   }
@@ -96,6 +103,8 @@ export function DrillingDataProvider({ children }: { children: ReactNode }) {
         setSelectedRepoId,
         isLoadingRepos,
         setIsLoadingRepos,
+        selectedMagneticDeclination,
+        setSelectedMagneticDeclination,
       }}
     >
       {children}
