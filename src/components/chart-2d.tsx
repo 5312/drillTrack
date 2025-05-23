@@ -20,14 +20,14 @@ export function Chart2D({  isLoading, magneticDeclination }: Chart2DProps) {
 
   if (isLoading) {
     return (
-      <div className="h-[400px] w-full flex items-center justify-center">
+      <div className="h-[63vh] w-full flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
       </div>
     )
   }
 
   return (
-    <div className="h-[60vh] w-full flex flex-col gap-4">
+    <div className="h-[63vh] w-full flex flex-col gap-4">
       {/* 左右偏差图表 */}
       <div className="h-[50%] w-full">
         <ResponsiveContainer width="100%" height="100%">

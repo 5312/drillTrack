@@ -95,7 +95,7 @@ export function DataTable({  isLoading, magneticDeclination }: DataTableProps) {
         rowKey={(record) => record.id || record.depth}
         pagination={false}
         size="small"
-        scroll={{ x:'calc(700px + 50%)', y: '60vh'  }}
+        scroll={{ x:'100%', y: '60vh'  }}
       />
     </div>
   )
