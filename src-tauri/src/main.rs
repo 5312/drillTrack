@@ -44,6 +44,7 @@ fn main() {
         .on_window_event(|_, event| {
             if let tauri::WindowEvent::CloseRequested { .. } = event {
                 // 在窗口关闭时关闭数据库连接
+                println!("关闭数据库连接");
                 let _ = tauri::async_runtime::block_on(close_database());
             }
         })
