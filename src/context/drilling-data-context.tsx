@@ -1,6 +1,7 @@
-
 import { createContext, useContext, useState,  type ReactNode } from "react"
 import { DataList } from "@/lib/db"
+ 
+import { Repo,   } from "../lib/db"
  
 
 // 定义上下文类型
@@ -19,6 +20,12 @@ interface DrillingDataContextType {
   setActiveTab: (tab: string) => void
   loadDataFromFile: (filePath: string) => Promise<void>
   saveDataToFile: (filePath: string) => Promise<void>
+  repos: Repo[]
+  setRepos: (value: Repo[] | ((prev: Repo[]) => Repo[])) => void
+  selectedRepoId: string
+  setSelectedRepoId: (value: string) => void
+  isLoadingRepos: boolean
+  setIsLoadingRepos: (value: boolean) => void
 }
 
 // 创建上下文
@@ -27,11 +34,14 @@ const DrillingDataContext = createContext<DrillingDataContextType | undefined>(u
 // 创建上下文提供者组件
 export function DrillingDataProvider({ children }: { children: ReactNode }) {
   const [drillingData, setDrillingData] = useState<DataList[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
   const [firstHoleAsReference, setFirstHoleAsReference] = useState(true)
   const [openingAngle, setOpeningAngle] = useState("1.0")
   const [geoOrientation, setGeoOrientation] = useState("0.0")
   const [activeTab, setActiveTab] = useState("table")
+  const [repos, setRepos] = useState<Repo[]>([])
+  const [selectedRepoId, setSelectedRepoId] = useState<string>("")
+  const [isLoadingRepos, setIsLoadingRepos] = useState(false)
 
   // 从文件加载数据
   const loadDataFromFile = async (_filePath: string) => {
@@ -80,6 +90,12 @@ export function DrillingDataProvider({ children }: { children: ReactNode }) {
         setActiveTab,
         loadDataFromFile,
         saveDataToFile,
+        repos,
+        setRepos,
+        selectedRepoId,
+        setSelectedRepoId,
+        isLoadingRepos,
+        setIsLoadingRepos,
       }}
     >
       {children}

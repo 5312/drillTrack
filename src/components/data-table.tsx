@@ -8,14 +8,14 @@ import {
   calculateCADCoordinates,
   calculateCADProfileCoordinates
 } from "../lib/calculations"
-
+import { useDrillingData } from "../context/drilling-data-context"
 interface DataTableProps {
-  dataList: DataList[]
   isLoading: boolean
   magneticDeclination: string // 添加磁偏角属性
 }
 
-export function DataTable({ dataList, isLoading, magneticDeclination }: DataTableProps) {
+export function DataTable({  isLoading, magneticDeclination }: DataTableProps) {
+  const {  drillingData} = useDrillingData()
   const columns: ColumnsType<DataList> = [
     {
       title: "序号",
@@ -90,7 +90,7 @@ export function DataTable({ dataList, isLoading, magneticDeclination }: DataTabl
     <div className="relative w-[80vw]">
       <Table
         columns={columns}
-        dataSource={dataList}
+        dataSource={drillingData}
         loading={isLoading}
         rowKey={(record) => record.id || record.depth}
         pagination={false}

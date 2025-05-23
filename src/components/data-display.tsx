@@ -8,23 +8,30 @@ import { Chart2D } from "./chart-2d"
 import { Chart3D } from "./chart-3d"
 import { useDrillingData } from "../context/drilling-data-context"
 import { useEffect, useState } from "react"
-import { getAllRepos, getDataListByRepoId, Repo, DataList } from "../lib/db"
+import { getAllRepos, getDataListByRepoId,    } from "../lib/db"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
 import { Loader2, RefreshCw, Compass } from "lucide-react"
 import { Button } from "./ui/button"
 import { MagneticDeclinationDialog } from "./magnetic-declination-dialog"
 
+
 export function DataDisplay() {
-  const { activeTab ,setDrillingData} = useDrillingData()
-  const [repos, setRepos] = useState<Repo[]>([])
-  const [selectedRepoId, setSelectedRepoId] = useState<string>("")
-  const [dataList, setDataList] = useState<DataList[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [isLoadingRepos, setIsLoadingRepos] = useState(false)
+  const { 
+    activeTab, 
+    setDrillingData,
+    repos,
+    setRepos,
+    selectedRepoId,
+    setSelectedRepoId,
+    isLoadingRepos,
+    setIsLoadingRepos,
+    isLoading,
+    setIsLoading
+  } = useDrillingData()
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [showMagneticDialog, setShowMagneticDialog] = useState(false)
-  const [selectedMagneticDeclination, setSelectedMagneticDeclination] = useState("-4.44") // 默认选中第一个值
-  const [selectedMagneticId, setSelectedMagneticId] = useState("1") // 默认选中第一个序号
+  const [selectedMagneticDeclination, setSelectedMagneticDeclination] = useState("-4.44")
+  const [selectedMagneticId, setSelectedMagneticId] = useState("1")
 
   // 获取所有 repo
   useEffect(() => {
@@ -49,7 +56,6 @@ export function DataDisplay() {
       setIsLoading(true)
       try {
         const data = await getDataListByRepoId(parseInt(selectedRepoId))
-        setDataList(data)
         setDrillingData(data);
       } catch (err) {
         console.error('获取数据列表失败:', err)
@@ -65,7 +71,6 @@ export function DataDisplay() {
     setIsRefreshing(true)
     try {
       const data = await getDataListByRepoId(parseInt(selectedRepoId))
-      setDataList(data)
       setDrillingData(data);
     } catch (err) {
       console.error('重新获取数据失败:', err)
@@ -130,7 +135,7 @@ export function DataDisplay() {
           <Tabs value={activeTab} defaultValue="table">
             <TabsContent value="table" className="mt-0">
               <DataTable 
-                dataList={dataList} 
+                
                 isLoading={isLoading || isRefreshing} 
                 magneticDeclination={selectedMagneticDeclination}
               />
