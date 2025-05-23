@@ -8,7 +8,7 @@ import { Chart2D } from "./chart-2d"
 import { Chart3D } from "./chart-3d"
 import { useDrillingData } from "../context/drilling-data-context"
 import { useEffect, useState } from "react"
-import { getAllRepos, getDataListByRepoId,    } from "../lib/db"
+import { DataList, getAllRepos, getDataListByRepoId,    } from "../lib/db"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
 import { Loader2, RefreshCw, Compass } from "lucide-react"
 import { Button } from "./ui/button"
@@ -55,7 +55,18 @@ export function DataDisplay() {
       if (!selectedRepoId) return
       setIsLoading(true)
       try {
-        const data = await getDataListByRepoId(parseInt(selectedRepoId))
+        const data:DataList[] = await getDataListByRepoId(parseInt(selectedRepoId))
+        data.unshift({
+          id:0,
+          time: "",
+          depth: 0,
+          pitch: data[0].pitch,
+          roll: data[0].roll,
+          heading: data[0].heading,
+          repo_id:  data[0].repo_id,
+          design_pitch:   data[0].design_pitch,
+          design_heading:  data[0].design_heading,
+        })
         setDrillingData(data);
       } catch (err) {
         console.error('获取数据列表失败:', err)

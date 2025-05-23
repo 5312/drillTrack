@@ -73,7 +73,7 @@ export function DataTable({  isLoading, magneticDeclination }: DataTableProps) {
       width: 100,
       render: (_, record) => {
         const coords = calculateCADCoordinates(record, magneticDeclination)
-        return `${coords.x.toFixed(5)},${coords.y.toFixed(5)}`
+        return `@${coords.x.toFixed(5)},${coords.y.toFixed(5)}`
       },
     },
     {
@@ -82,7 +82,7 @@ export function DataTable({  isLoading, magneticDeclination }: DataTableProps) {
       width: 100,
       render: (_, record) => {
         const coords = calculateCADProfileCoordinates(record)
-        return `${coords.x.toFixed(5)},${coords.y.toFixed(5)}`
+        return `@${coords.x.toFixed(5)},${coords.y.toFixed(5)}`
       },
     },
   ]
