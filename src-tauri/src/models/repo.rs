@@ -1,4 +1,4 @@
-use crate::services::db::{get_conn, DbError};
+use crate::services::db::{check_db_connection, get_conn, get_conn_with_retry, DbError};
 use rusqlite::{params, Result};
 use serde::{Deserialize, Serialize};
 
@@ -19,7 +19,10 @@ pub struct Repo {
 
 impl Repo {
     pub async fn insert_repo(repo: Repo) -> Result<i64, DbError> {
-        let conn_guard = get_conn().await?;
+        // 检查数据库连接
+        check_db_connection().await?;
+
+        let conn_guard = get_conn_with_retry(3).await?;
         let conn = conn_guard.as_ref().unwrap();
 
         let repo = repo.clone();
@@ -50,6 +53,7 @@ impl Repo {
         .await
         .map_err(|e| DbError::Other(e.into()))
     }
+
     #[allow(dead_code)]
     pub async fn delete_repo_by_id(id: i32) -> Result<bool, DbError> {
         let conn_guard = get_conn().await?;
@@ -62,6 +66,7 @@ impl Repo {
         .await
         .map_err(|e| DbError::Other(e.into()))
     }
+
     #[allow(dead_code)]
     pub async fn update_repo(repo: Repo) -> Result<bool, DbError> {
         let conn_guard = get_conn().await?;
@@ -97,9 +102,13 @@ impl Repo {
             ))
         }
     }
+
     #[allow(dead_code)]
     pub async fn query_repo_by_id(id: i32) -> Result<Option<Repo>, DbError> {
-        let conn_guard = get_conn().await?;
+        // 检查数据库连接
+        check_db_connection().await?;
+
+        let conn_guard = get_conn_with_retry(3).await?;
         let conn = conn_guard.as_ref().unwrap();
 
         conn.call(move |c| {

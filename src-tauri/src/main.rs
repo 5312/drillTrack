@@ -33,6 +33,12 @@ fn main() {
             // 初始化网络模块
             commands::network::init(app)?;
 
+            // 初始化数据库
+            let app_dir =
+                std::env::current_dir().map_err(|e| format!("无法获取当前目录: {}", e))?;
+            let db_path = app_dir.join("database.db").to_string_lossy().to_string();
+            tauri::async_runtime::block_on(init_database(Some(db_path)))?;
+
             Ok(())
         })
         .on_window_event(|_, event| {

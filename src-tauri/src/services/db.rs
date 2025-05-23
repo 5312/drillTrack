@@ -317,6 +317,7 @@ pub async fn delete_user(id: i64) -> Result<bool, DbError> {
 }
 
 /// 执行自定义查询 - 基本实现
+#[allow(dead_code)]
 pub async fn execute_custom_query(sql: &str) -> Result<Vec<serde_json::Value>, DbError> {
     let conn_mutex = match DB_CONNECTION.get() {
         Some(m) => m,
@@ -471,4 +472,38 @@ pub async fn query_data_list_by_repo_id(repo_id: i32) -> Result<Vec<DataList>, D
         .await
         .map_err(|e| DbError::Other(e.into()))?;
     Ok(data_list)
+}
+
+/// 检查数据库连接状态
+pub async fn check_db_connection() -> Result<(), DbError> {
+    let conn_mutex = DB_CONNECTION.get().ok_or(DbError::NotInitialized)?;
+    let conn_guard = conn_mutex.lock().await;
+
+    if conn_guard.is_none() {
+        Err(DbError::NotInitialized)
+    } else {
+        Ok(())
+    }
+}
+
+/// 带重试机制的获取数据库连接
+pub async fn get_conn_with_retry(
+    max_retries: u32,
+) -> Result<MutexGuard<'static, Option<TokioConnection>>, DbError> {
+    let mut retries = 0;
+    while retries < max_retries {
+        match get_conn().await {
+            Ok(conn) => return Ok(conn),
+            Err(DbError::NotInitialized) => {
+                retries += 1;
+                if retries < max_retries {
+                    tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
+                    continue;
+                }
+                return Err(DbError::NotInitialized);
+            }
+            Err(e) => return Err(e),
+        }
+    }
+    Err(DbError::NotInitialized)
 }

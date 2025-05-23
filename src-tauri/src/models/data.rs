@@ -1,4 +1,4 @@
-use crate::services::db::{get_conn, DbError};
+use crate::services::db::{check_db_connection, get_conn_with_retry, DbError};
 use rusqlite::{params, Result};
 use serde::{Deserialize, Serialize};
 
@@ -32,7 +32,10 @@ pub struct DataList {
 
 impl DataList {
     pub async fn insert_data(repo: DataList) -> Result<i64, DbError> {
-        let conn_guard = get_conn().await?;
+        // 检查数据库连接
+        check_db_connection().await?;
+
+        let conn_guard = get_conn_with_retry(3).await?;
         let conn = conn_guard.as_ref().unwrap();
 
         let repo = repo.clone();
