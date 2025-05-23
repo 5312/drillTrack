@@ -1,6 +1,6 @@
 import { Loader2 } from "lucide-react"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts"
-import { calculateLateralDisplacement, calculateVerticalDisplacement } from "../lib/calculations"
+import { calculateLateralDisplacement, calculateVerticalDisplacement, calculateDesignVerticalDisplacement } from "../lib/calculations"
 import { useDrillingData } from "../context/drilling-data-context"
 
 interface Chart2DProps {
@@ -16,6 +16,9 @@ export function Chart2D({  isLoading, magneticDeclination }: Chart2DProps) {
     depth: point.depth,
     leftRightDeviation: calculateLateralDisplacement(point, magneticDeclination),
     upDownDeviation: calculateVerticalDisplacement(point),
+    designUpDownDeviation: calculateDesignVerticalDisplacement(point),
+    // 设计左右位移暂时设为0，因为还没有相应的计算函数
+    designLeftRightDeviation: 0,
   }))
 
   if (isLoading) {
@@ -41,15 +44,24 @@ export function Chart2D({  isLoading, magneticDeclination }: Chart2DProps) {
             }}
           >
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="depth" label={{ value: "深 (m)", position: "insideBottomRight", offset: -5 }} />
+            <XAxis dataKey="depth" label={{ value: "深度 (m)", position: "insideBottomRight", offset: -5 }} />
             <YAxis label={{  value: "左右位移 (m)",  angle: -90, position: "insideLeft" }} />
             <Tooltip formatter={(value: number) => [`${value.toFixed(5)}m`, ""]} labelFormatter={(label) => `深度: ${label}m`} />
             <Legend />
             <Line
               type="monotone"
               dataKey="leftRightDeviation"
-              name="左右位移"
+              name="实际左右位移"
               stroke="#8884d8"
+              activeDot={{ r: 8 }}
+              strokeWidth={2}
+            />
+            <Line
+              type="monotone"
+              dataKey="designLeftRightDeviation"
+              name="设计左右位移"
+              stroke="#ff7f0e"
+              strokeDasharray="5 5"
               activeDot={{ r: 8 }}
               strokeWidth={2}
             />
@@ -70,15 +82,24 @@ export function Chart2D({  isLoading, magneticDeclination }: Chart2DProps) {
             }}
           >
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="depth" label={{ value: "深 (m)", position: "insideBottomRight", offset: -5 }} />
+            <XAxis dataKey="depth" label={{ value: "深度 (m)", position: "insideBottomRight", offset: -5 }} />
             <YAxis label={{   value: "上下位移 (m)", angle: -90, position: "insideLeft" }} />
             <Tooltip formatter={(value: number) => [`${value.toFixed(5)}m`, ""]} labelFormatter={(label) => `深度: ${label}m`} />
             <Legend />
             <Line
               type="monotone"
               dataKey="upDownDeviation"
-              name="上下位移"
+              name="实际上下位移"
               stroke="#82ca9d"
+              activeDot={{ r: 8 }}
+              strokeWidth={2}
+            />
+            <Line
+              type="monotone"
+              dataKey="designUpDownDeviation"
+              name="设计上下位移"
+              stroke="#ff8042"
+              strokeDasharray="5 5"
               activeDot={{ r: 8 }}
               strokeWidth={2}
             />
