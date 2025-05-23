@@ -34,6 +34,8 @@ export interface DataList {
   repo_id: number;
   design_pitch: number;
   design_heading: number;
+  x?: number;  // 添加 x 坐标
+  y?: number;  // 添加 y 坐标
 }
 
 // 初始化数据库

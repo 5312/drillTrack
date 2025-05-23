@@ -66,7 +66,7 @@ export function Chart3DThree() {
         return new THREE.Vector3(
           point.x || 0,
           point.y || 0,
-          -Number.parseFloat(point.depth), // 负值使钻孔向下延伸
+          -point.depth, // 负值使钻孔向下延伸
         )
       })
 
