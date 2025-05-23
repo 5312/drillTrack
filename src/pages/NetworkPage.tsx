@@ -350,7 +350,7 @@ const NetworkPage: React.FC = () => {
       {/* 仓库数据 */}
       <div className="bg-white shadow-md rounded p-4">
         <div className="flex justify-between items-center mb-3">
-          <h2 className="text-lg font-semibold">仓库（repo）数据</h2>
+          <h2 className="text-lg font-semibold">报表数据</h2>
           <button
             className="bg-blue-500 hover:bg-blue-700 text-white text-sm font-bold py-1 px-3 rounded"
             onClick={fetchRepos}
@@ -365,13 +365,14 @@ const NetworkPage: React.FC = () => {
             <thead>
               <tr className="bg-gray-100">
                 <th className="border px-2 py-1 text-xs">ID</th>
-                <th className="border px-2 py-1 text-xs">名称</th>
-                <th className="border px-2 py-1 text-xs">mn_time</th>
-                <th className="border px-2 py-1 text-xs">长度</th>
-                <th className="border px-2 py-1 text-xs">矿山</th>
-                <th className="border px-2 py-1 text-xs">作业</th>
-                <th className="border px-2 py-1 text-xs">工厂</th>
+                <th className="border px-2 py-1 text-xs">报表名称</th>
+                <th className="border px-2 py-1 text-xs">钻杆长度</th>
+                <th className="border px-2 py-1 text-xs">矿区</th>
+                <th className="border px-2 py-1 text-xs">工作面</th>
+                <th className="border px-2 py-1 text-xs">钻厂</th>
                 <th className="border px-2 py-1 text-xs">钻孔</th>
+                <th className="border px-2 py-1 text-xs">时间</th>
+
               </tr>
             </thead>
             <tbody>
@@ -382,12 +383,13 @@ const NetworkPage: React.FC = () => {
                   <tr key={repo.id}>
                     <td className="border px-2 py-1 text-xs">{repo.id}</td>
                     <td className="border px-2 py-1 text-xs">{repo.name}</td>
-                    <td className="border px-2 py-1 text-xs">{repo.mn_time}</td>
                     <td className="border px-2 py-1 text-xs">{repo.len}</td>
                     <td className="border px-2 py-1 text-xs">{repo.mine}</td>
                     <td className="border px-2 py-1 text-xs">{repo.work}</td>
                     <td className="border px-2 py-1 text-xs">{repo.factory}</td>
                     <td className="border px-2 py-1 text-xs">{repo.drilling}</td>
+                    <td className="border px-2 py-1 text-xs">{repo.mn_time}</td>
+
                   </tr>
                 ))
               )}
