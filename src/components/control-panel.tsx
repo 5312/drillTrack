@@ -4,7 +4,7 @@ import { motion } from "framer-motion"
 import { Tabs, TabsList, TabsTrigger } from "./ui/tabs"
 import { Input } from "./ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
-import { Grid, BarChart2, CuboidIcon as Cube } from "lucide-react"
+import { Grid, BarChart2, CuboidIcon as Cube, Map, Globe } from "lucide-react"
 import { useDrillingData } from "../context/drilling-data-context"
 
 export function ControlPanel() {
@@ -56,11 +56,26 @@ export function ControlPanel() {
                     二维图显示
                   </TabsTrigger>
                   <TabsTrigger
+                    value="geo"
+                    className="gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 transition-all"
+                  >
+                    <Map className="h-4 w-4" />
+                    二维图（地理坐标）
+                  </TabsTrigger>
+               
+                  <TabsTrigger
                     value="3d"
                     className="gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 transition-all"
                   >
                     <Cube className="h-4 w-4" />
                     三维图显示
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="geo3d"
+                    className="gap-2 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 transition-all"
+                  >
+                    <Globe className="h-4 w-4" />
+                    三维图（地理坐标）
                   </TabsTrigger>
                 </TabsList>
               </Tabs>

@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 import { DataTable } from "./data-table"
 import { Chart2D } from "./chart-2d"
 import { Chart3D } from "./chart-3d"
+import { ChartGeo } from "./chart-geo"
+import { ChartGeo3D } from "./chart-geo-3d"
 import { useDrillingData } from "../context/drilling-data-context"
 import { useEffect, useState } from "react"
 import { DataList, getAllRepos, getDataListByRepoId,    } from "../lib/db"
@@ -165,6 +167,20 @@ export function DataDisplay() {
 
             <TabsContent value="2d" className="mt-0">
               <Chart2D 
+                isLoading={isLoading || isRefreshing}
+                magneticDeclination={selectedMagneticDeclination}
+              />
+            </TabsContent>
+
+            <TabsContent value="geo" className="mt-0">
+              <ChartGeo 
+                isLoading={isLoading || isRefreshing}
+                magneticDeclination={selectedMagneticDeclination}
+              />
+            </TabsContent>
+
+            <TabsContent value="geo3d" className="mt-0">
+              <ChartGeo3D 
                 isLoading={isLoading || isRefreshing}
                 magneticDeclination={selectedMagneticDeclination}
               />
