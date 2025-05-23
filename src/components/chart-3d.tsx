@@ -171,13 +171,15 @@ export function Chart3D() {
         <p>提示: 鼠标拖动旋转视图，滚轮缩放</p>
       </div>
       <Button
-        variant="outline"
-        size="icon"
-        className="absolute top-2 right-2 bg-white/80 dark:bg-slate-800/80 hover:bg-white dark:hover:bg-slate-800"
-        onClick={resetView}
-      >
-        <RotateCcw className="h-4 w-4" />
-      </Button>
+          variant="outline"
+           size="sm"
+         className="gap-2 absolute top-2 right-2 bg-white/80 dark:bg-slate-800/80 hover:bg-white dark:hover:bg-slate-800"
+          onClick={resetView}
+        >
+          <RotateCcw className="h-4 w-4" />
+          重置视图
+        </Button>
+ 
     </div>
   )
 }
