@@ -82,6 +82,17 @@ export function DataDisplay() {
     setIsRefreshing(true)
     try {
       const data = await getDataListByRepoId(parseInt(selectedRepoId))
+      data.unshift({
+        id:0,
+        time: "",
+        depth: 0,
+        pitch: data[0].pitch,
+        roll: data[0].roll,
+        heading: data[0].heading,
+        repo_id:  data[0].repo_id,
+        design_pitch:   data[0].design_pitch,
+        design_heading:  data[0].design_heading,
+      })
       setDrillingData(data);
     } catch (err) {
       console.error('重新获取数据失败:', err)
