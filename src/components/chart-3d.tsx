@@ -2,15 +2,32 @@
 
 import { useEffect, useRef } from "react"
 import { useDrillingData } from "../context/drilling-data-context"
-import { Loader2 } from "lucide-react"
+import { Loader2, RotateCcw } from "lucide-react"
 import * as echarts from "echarts"
 import "echarts-gl"
 import { calculateCADCoordinates } from "../lib/calculations"
+import { Button } from "./ui/button"
 
 export function Chart3D() {
   const { drillingData, isLoading } = useDrillingData()
   const chartRef = useRef<HTMLDivElement>(null)
   const chartInstance = useRef<echarts.ECharts | null>(null)
+  const rangesRef = useRef<{ xRange: number; yRange: number; zRange: number }>({ xRange: 0, yRange: 0, zRange: 0 })
+
+  const resetView = () => {
+    if (chartInstance.current) {
+      const { xRange, yRange, zRange } = rangesRef.current
+      chartInstance.current.setOption({
+        grid3D: {
+          viewControl: {
+            alpha: 30,
+            beta: 30,
+            distance: Math.max(xRange, yRange, zRange) * 2,
+          }
+        }
+      })
+    }
+  }
 
   useEffect(() => {
     if (isLoading || !chartRef.current) return
@@ -28,6 +45,27 @@ export function Chart3D() {
       }
     })
 
+    // 计算坐标轴范围
+    const xValues = points.map(p => p.value[0])
+    const yValues = points.map(p => p.value[1])
+    const zValues = points.map(p => p.value[2])
+    
+    const xMin = Math.min(...xValues)
+    const xMax = Math.max(...xValues)
+    const yMin = Math.min(...yValues)
+    const yMax = Math.max(...yValues)
+    const zMin = Math.min(...zValues)
+    const zMax = Math.max(...zValues)
+
+    // 添加边距
+    const padding = 1
+    const xRange = xMax - xMin
+    const yRange = yMax - yMin
+    const zRange = zMax - zMin
+
+    // 保存范围值供重置使用
+    rangesRef.current = { xRange, yRange, zRange }
+
     // 配置项
     const option = {
       backgroundColor: "#f5f5f5",
@@ -36,41 +74,50 @@ export function Chart3D() {
       },
       grid3D: {
         show: true,
-        boxWidth: 10,
-        boxHeight: 10,
-        boxDepth: 10,
+        boxWidth: xRange + padding * 2,
+        boxHeight: yRange + padding * 2,
+        boxDepth: zRange + padding * 2,
         viewControl: {
           // 视角控制
           autoRotate: true,
           autoRotateSpeed: 10,
-          distance: 20,
+          distance: Math.max(xRange, yRange, zRange) * 2,
           alpha: 30,
           beta: 30,
           minAlpha: 5,
           maxAlpha: 90,
           minBeta: 5,
           maxBeta: 90,
-          minDistance: 5,
-          maxDistance: 50,
+          minDistance: Math.max(xRange, yRange, zRange),
+          maxDistance: Math.max(xRange, yRange, zRange) * 4,
         },
       },
       xAxis3D: {
         type: "value",
         name: "X",
-        min: -5,
-        max: 5,
+        min: xMin - padding,
+        max: xMax + padding,
+        axisLabel: {
+          formatter: (value: number) => value.toFixed(2)
+        }
       },
       yAxis3D: {
         type: "value",
         name: "Y",
-        min: -5,
-        max: 5,
+        min: yMin - padding,
+        max: yMax + padding,
+        axisLabel: {
+          formatter: (value: number) => value.toFixed(2)
+        }
       },
       zAxis3D: {
         type: "value",
         name: "深度",
-        min: -10,
-        max: 0,
+        min: zMin - padding,
+        max: zMax + padding,
+        axisLabel: {
+          formatter: (value: number) => value.toFixed(2)
+        }
       },
       series: [
         {
@@ -121,8 +168,16 @@ export function Chart3D() {
     <div className="relative h-[63vh] w-full rounded-md overflow-hidden">
       <div ref={chartRef} className="w-full h-full" />
       <div className="absolute top-2 left-2 bg-white/80 dark:bg-slate-800/80 p-2 rounded text-xs z-10">
-        <p>提示: 鼠标拖动旋转视图，滚轮缩放，右键平移</p>
+        <p>提示: 鼠标拖动旋转视图，滚轮缩放</p>
       </div>
+      <Button
+        variant="outline"
+        size="icon"
+        className="absolute top-2 right-2 bg-white/80 dark:bg-slate-800/80 hover:bg-white dark:hover:bg-slate-800"
+        onClick={resetView}
+      >
+        <RotateCcw className="h-4 w-4" />
+      </Button>
     </div>
   )
 }
